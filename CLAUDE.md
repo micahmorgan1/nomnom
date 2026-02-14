@@ -26,7 +26,27 @@ Monorepo with npm workspaces:
 - `client/` — @nomnom/client: React Vite PWA
 
 ## Key UI Concept
-Items render as **inline pill elements that flow/wrap like words in a paragraph** (flex-wrap), NOT a vertical list. Each category group has a colored label, then pills flow left-to-right. Checked items gray out and move to a collapsible section at bottom. The app remembers items across lists, building a personal library over time.
+Items render as **inline pill elements that flow/wrap like words in a paragraph** (flex-wrap) in a single continuous block — no category headers. Same-color (same-category) pills sit adjacent, sorted alphabetically within each category group. Checked items gray out and move to a collapsible "Inactive" section at bottom. The app remembers items across lists, building a personal library over time.
+
+## Deduplication
+- Each item can only appear once per list (UNIQUE constraint on `list_items(list_id, item_id)`)
+- Adding an item that's already active → 409 error shown in modal
+- Adding an item that's checked/inactive → re-activates it (unchecks, updates qty/notes)
+
+## Categories
+- Default categories seeded on first run (see `shared/src/constants.ts`)
+- Users can create custom categories inline from the CategoryPicker (name + color from `PRESET_COLORS`)
+- POST `/api/categories` — already supported by server
+
+## PWA Icons
+- `client/public/icons/` — icon.svg (source), icon-192.png, icon-512.png, apple-touch-icon.png (180px)
+- Generated from SVG via cairosvg; regenerate with: `python3 -c "import cairosvg; ..."`
+- Apple Touch Icon linked in `client/index.html`
+
+## Database Migrations
+- `server/migrations/001_initial.ts` — all tables
+- `server/migrations/002_unique_list_items.ts` — unique constraint on (list_id, item_id)
+- Run: `npm run migrate -w @nomnom/server`
 
 ## Implementation Plan
 Full plan: `~/.claude/plans/fuzzy-giggling-knuth.md`
