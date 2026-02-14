@@ -1,0 +1,86 @@
+import { useState, FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+
+export default function Register() {
+  const { register } = useAuth();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError('');
+
+    if (password !== confirm) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await register(username, password);
+      navigate('/');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-sm">
+        <h1 className="text-4xl font-bold text-emerald-600 text-center mb-8">nomnom</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>
+          )}
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            autoComplete="username"
+            required
+          />
+          <div className="text-xs text-gray-400 -mt-2 ml-1">3-30 characters, letters/numbers/underscores</div>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            autoComplete="new-password"
+            required
+            minLength={6}
+          />
+          <input
+            type="password"
+            placeholder="Confirm password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            autoComplete="new-password"
+            required
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+          >
+            {loading ? 'Creating account...' : 'Create Account'}
+          </button>
+        </form>
+        <p className="text-center text-sm text-gray-500 mt-4">
+          Already have an account?{' '}
+          <Link to="/login" className="text-emerald-600 hover:underline">Log in</Link>
+        </p>
+      </div>
+    </div>
+  );
+}

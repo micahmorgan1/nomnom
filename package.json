@@ -1,0 +1,14 @@
+{
+  "name": "nomnom",
+  "private": true,
+  "workspaces": ["shared", "server", "client"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @nomnom/shared\" \"npm run dev -w @nomnom/server\" \"npm run dev -w @nomnom/client\"",
+    "build": "npm run build -w @nomnom/shared && npm run build -w @nomnom/server && npm run build -w @nomnom/client",
+    "start": "npm run start -w @nomnom/server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.7.0"
+  }
+}
