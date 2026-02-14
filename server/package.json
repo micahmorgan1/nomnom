@@ -6,7 +6,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "migrate": "knex migrate:latest --knexfile knexfile.ts",
+    "migrate": "knex migrate:latest --knexfile src/knexfile.ts",
     "seed": "tsx src/seed.ts"
   },
   "dependencies": {

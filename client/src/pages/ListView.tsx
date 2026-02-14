@@ -1,38 +1,41 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useList } from '@/hooks/useList';
-import PillGroup from '@/components/PillGroup';
-import CheckedSection from '@/components/CheckedSection';
+import Pill from '@/components/Pill';
 import AddItemModal from '@/components/AddItemModal';
+import EditItemModal from '@/components/EditItemModal';
 import ShareModal from '@/components/ShareModal';
+import type { ListItemWithDetails } from '@nomnom/shared';
+
+function sortItemsByCategory(items: ListItemWithDetails[]): ListItemWithDetails[] {
+  return [...items].sort((a, b) => {
+    // Group by category name first
+    const catCmp = a.category.name.localeCompare(b.category.name);
+    if (catCmp !== 0) return catCmp;
+    // Alphabetical within category
+    return a.item.name.localeCompare(b.item.name);
+  });
+}
 
 export default function ListView() {
   const { id } = useParams<{ id: string }>();
   const listId = Number(id);
   const navigate = useNavigate();
-  const { list, loading, error, addItem, checkItem, removeItem, clearChecked } = useList(listId);
+  const { list, loading, error, addItem, checkItem, updateItem, removeItem, clearChecked } = useList(listId);
   const [showAdd, setShowAdd] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [editingItem, setEditingItem] = useState<ListItemWithDetails | null>(null);
 
-  // Group unchecked items by category
-  const { groups, checkedItems } = useMemo(() => {
-    if (!list) return { groups: [], checkedItems: [] };
+  const { activeItems, inactiveItems, hasInactive } = useMemo(() => {
+    if (!list) return { activeItems: [], inactiveItems: [], hasInactive: false };
 
-    const unchecked = list.items.filter((i) => !i.is_checked);
-    const checked = list.items.filter((i) => i.is_checked);
-
-    const categoryMap = new Map<number, { name: string; color: string; items: typeof unchecked }>();
-    for (const item of unchecked) {
-      const catId = item.category.id;
-      if (!categoryMap.has(catId)) {
-        categoryMap.set(catId, { name: item.category.name, color: item.category.color, items: [] });
-      }
-      categoryMap.get(catId)!.items.push(item);
-    }
+    const active = list.items.filter((i) => !i.is_checked);
+    const inactive = list.items.filter((i) => i.is_checked);
 
     return {
-      groups: Array.from(categoryMap.entries()).map(([id, data]) => ({ id, ...data })),
-      checkedItems: checked,
+      activeItems: sortItemsByCategory(active),
+      inactiveItems: sortItemsByCategory(inactive),
+      hasInactive: inactive.length > 0,
     };
   }, [list]);
 
@@ -77,30 +80,57 @@ export default function ListView() {
         )}
       </div>
 
-      {/* Category groups with inline pills */}
-      {groups.length === 0 && checkedItems.length === 0 ? (
+      {/* Pills flow as one continuous paragraph */}
+      {activeItems.length === 0 && !hasInactive ? (
         <div className="text-center text-gray-400 mt-16">
           <p className="text-lg mb-2">List is empty</p>
           <p className="text-sm">Tap + to add items</p>
         </div>
       ) : (
         <>
-          {groups.map((group) => (
-            <PillGroup
-              key={group.id}
-              categoryName={group.name}
-              categoryColor={group.color}
-              items={group.items}
-              onCheckItem={(id, checked) => checkItem(id, checked)}
-              onRemoveItem={(id) => removeItem(id)}
-            />
-          ))}
-          <CheckedSection
-            items={checkedItems}
-            onUncheck={(id) => checkItem(id, false)}
-            onRemove={(id) => removeItem(id)}
-            onClearAll={clearChecked}
-          />
+          {/* Active items */}
+          <div className="flex flex-wrap gap-2">
+            {activeItems.map((item) => (
+              <Pill
+                key={item.id}
+                item={item}
+                variant="active"
+                onCheck={() => checkItem(item.id, !item.is_checked)}
+                onRemove={() => removeItem(item.id)}
+                onEdit={() => setEditingItem(item)}
+              />
+            ))}
+          </div>
+
+          {/* Inactive section */}
+          {hasInactive && (
+            <>
+              <div className="flex items-center gap-3 my-6">
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Inactive</span>
+                <div className="flex-1 h-px bg-gray-200" />
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {inactiveItems.map((item) => (
+                  <Pill
+                    key={item.id}
+                    item={item}
+                    variant="inactive"
+                    onCheck={() => checkItem(item.id, !item.is_checked)}
+                    onRemove={() => removeItem(item.id)}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={clearChecked}
+                className="mt-2 text-xs text-red-400 hover:text-red-600 transition-colors"
+              >
+                Clear all inactive
+              </button>
+            </>
+          )}
         </>
       )}
 
@@ -116,6 +146,13 @@ export default function ListView() {
         open={showAdd}
         onClose={() => setShowAdd(false)}
         onAdd={addItem}
+      />
+
+      <EditItemModal
+        open={editingItem !== null}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSave={updateItem}
       />
 
       <ShareModal

@@ -74,6 +74,33 @@ router.post('/:listId/items', authenticate, async (req: AuthRequest, res: Respon
       item = { id: itemId, name: name.trim(), category_id, created_by: req.user!.id };
     }
 
+    // Check if this item already exists on the list
+    const existing = await db('list_items')
+      .where({ list_id: listId, item_id: item.id })
+      .first();
+
+    if (existing) {
+      if (existing.is_checked) {
+        // Re-activate: uncheck and update quantity/notes
+        await db('list_items').where({ id: existing.id }).update({
+          is_checked: false,
+          checked_at: null,
+          quantity: quantity || '1',
+          notes: notes || '',
+        });
+        const enriched = await enrichListItem(existing.id);
+        const io = req.app.get('io');
+        if (io) {
+          io.to(`list:${listId}`).emit('list:item-updated', { listId, listItem: enriched! });
+        }
+        res.json(enriched);
+        return;
+      } else {
+        res.status(409).json({ error: 'Item already on this list' });
+        return;
+      }
+    }
+
     // Get max sort_order
     const maxOrder = await db('list_items')
       .where({ list_id: listId, is_checked: false })
@@ -125,15 +152,27 @@ router.patch('/:listId/items/:listItemId', authenticate, async (req: AuthRequest
       updates.checked_at = req.body.is_checked ? new Date().toISOString() : null;
     }
 
-    if (Object.keys(updates).length === 0) {
+    const categoryUpdate = req.body.category_id !== undefined ? req.body.category_id : undefined;
+
+    if (Object.keys(updates).length === 0 && categoryUpdate === undefined) {
       res.status(400).json({ error: 'No updates provided' });
       return;
     }
 
-    await db('list_items').where({ id: listItemId }).update(updates);
+    if (Object.keys(updates).length > 0) {
+      await db('list_items').where({ id: listItemId }).update(updates);
+    }
+
+    // Update category on the underlying item record
+    if (categoryUpdate !== undefined) {
+      await db('items').where({ id: existing.item_id }).update({ category_id: categoryUpdate });
+    }
+
+    const isCheckOnly = updates.is_checked !== undefined && categoryUpdate === undefined
+      && Object.keys(updates).every((k) => k === 'is_checked' || k === 'checked_at');
 
     const io = req.app.get('io');
-    if (io && updates.is_checked !== undefined) {
+    if (io && isCheckOnly) {
       io.to(`list:${listId}`).emit('list:item-checked', {
         listId,
         listItemId,

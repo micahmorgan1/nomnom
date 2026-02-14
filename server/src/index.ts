@@ -1,11 +1,15 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 import authRoutes from './routes/auth.js';
 import listRoutes from './routes/lists.js';
@@ -17,10 +21,9 @@ import { setupSocket } from './socket.js';
 import db from './db.js';
 import { DEFAULT_CATEGORIES } from '@nomnom/shared';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const httpServer = createServer(app);
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Socket.IO
 const io = new SocketServer(httpServer, {

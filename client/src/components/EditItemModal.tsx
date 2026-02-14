@@ -1,105 +1,62 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { useItemLibrary } from '@/hooks/useItemLibrary';
+import type { ListItemWithDetails } from '@nomnom/shared';
 import CategoryPicker from './CategoryPicker';
 
-interface AddItemModalProps {
+interface EditItemModalProps {
   open: boolean;
+  item: ListItemWithDetails | null;
   onClose: () => void;
-  onAdd: (data: { name: string; category_id: number; quantity?: string; notes?: string }) => Promise<unknown>;
+  onSave: (listItemId: number, updates: { quantity?: string; notes?: string; category_id?: number }) => Promise<unknown>;
 }
 
-export default function AddItemModal({ open, onClose, onAdd }: AddItemModalProps) {
-  const [name, setName] = useState('');
-  const [categoryId, setCategoryId] = useState<number | null>(null);
+export default function EditItemModal({ open, item, onClose, onSave }: EditItemModalProps) {
   const [quantity, setQuantity] = useState('1');
   const [notes, setNotes] = useState('');
+  const [categoryId, setCategoryId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const { results, search, loadAll } = useItemLibrary();
 
   useEffect(() => {
-    if (open) {
-      setName('');
-      setCategoryId(null);
-      setQuantity('1');
-      setNotes('');
-      setError('');
-      loadAll();
+    if (open && item) {
+      setQuantity(item.quantity || '1');
+      setNotes(item.notes || '');
+      setCategoryId(item.category.id);
     }
-  }, [open, loadAll]);
-
-  useEffect(() => {
-    search(name);
-  }, [name, search]);
+  }, [open, item]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !categoryId) return;
+    if (!item || !categoryId) return;
 
     setSubmitting(true);
-    setError('');
     try {
-      await onAdd({
-        name: name.trim(),
-        category_id: categoryId,
-        quantity: quantity || '1',
-        notes: notes || '',
-      });
+      const updates: { quantity?: string; notes?: string; category_id?: number } = {};
+      if (quantity !== item.quantity) updates.quantity = quantity || '1';
+      if (notes !== (item.notes || '')) updates.notes = notes;
+      if (categoryId !== item.category.id) updates.category_id = categoryId;
+
+      if (Object.keys(updates).length > 0) {
+        await onSave(item.id, updates);
+      }
       onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add item');
+    } catch {
+      // Error handled by parent
     } finally {
       setSubmitting(false);
     }
   }
 
-  function handleSelectLibraryItem(item: typeof results[0]) {
-    setName(item.name);
-    setCategoryId(item.category_id);
-  }
-
-  if (!open) return null;
+  if (!open || !item) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <div className="relative bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between rounded-t-2xl">
-          <h2 className="text-lg font-semibold">Add Item</h2>
+          <h2 className="text-lg font-semibold">Edit {item.item.name}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          {/* Search / Name input */}
-          <input
-            type="text"
-            placeholder="Item name..."
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            autoFocus
-          />
-
-          {/* Library suggestions */}
-          {name.trim() && results.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {results.slice(0, 8).map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => handleSelectLibraryItem(item)}
-                  className="pill"
-                  style={{
-                    backgroundColor: item.category.color + '25',
-                    color: item.category.color,
-                  }}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          )}
-
           {/* Category picker */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-2">Category</label>
@@ -129,16 +86,12 @@ export default function AddItemModal({ open, onClose, onAdd }: AddItemModalProps
             </div>
           </div>
 
-          {error && (
-            <p className="text-sm text-red-500 text-center">{error}</p>
-          )}
-
           <button
             type="submit"
-            disabled={!name.trim() || !categoryId || submitting}
+            disabled={!categoryId || submitting}
             className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
           >
-            {submitting ? 'Adding...' : 'Add Item'}
+            {submitting ? 'Saving...' : 'Save'}
           </button>
         </form>
       </div>

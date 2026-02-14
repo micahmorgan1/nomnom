@@ -93,6 +93,7 @@ export interface UpdateListItemRequest {
   quantity?: string;
   notes?: string;
   is_checked?: boolean;
+  category_id?: number;
 }
 
 // ---------- Socket Events ----------

@@ -92,10 +92,15 @@ export function useList(listId: number) {
   const addItem = useCallback(
     async (data: { name: string; category_id: number; quantity?: string; notes?: string }) => {
       const item = await api.post<ListItemWithDetails>(`/lists/${listId}/items`, data);
-      // Optimistic update handled by socket, but add if not already present
       setList((prev) => {
         if (!prev) return prev;
-        if (prev.items.some((i) => i.id === item.id)) return prev;
+        // If the item already exists (re-activated), update it in place
+        const idx = prev.items.findIndex((i) => i.id === item.id);
+        if (idx >= 0) {
+          const updated = [...prev.items];
+          updated[idx] = item;
+          return { ...prev, items: updated };
+        }
         return { ...prev, items: [...prev.items, item] };
       });
       return item;
@@ -133,6 +138,22 @@ export function useList(listId: number) {
     [listId]
   );
 
+  const updateItem = useCallback(
+    async (listItemId: number, updates: { quantity?: string; notes?: string; category_id?: number }) => {
+      const result = await api.patch<ListItemWithDetails>(`/lists/${listId}/items/${listItemId}`, updates);
+      // Update local state with the enriched response
+      setList((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          items: prev.items.map((i) => (i.id === listItemId ? result : i)),
+        };
+      });
+      return result;
+    },
+    [listId]
+  );
+
   const clearChecked = useCallback(async () => {
     if (!list) return;
     const checked = list.items.filter((i) => i.is_checked);
@@ -143,5 +164,5 @@ export function useList(listId: number) {
     await Promise.all(checked.map((i) => api.delete(`/lists/${listId}/items/${i.id}`)));
   }, [list, listId]);
 
-  return { list, loading, error, addItem, checkItem, removeItem, clearChecked, refresh };
+  return { list, loading, error, addItem, checkItem, updateItem, removeItem, clearChecked, refresh };
 }
