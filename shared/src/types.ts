@@ -37,7 +37,7 @@ export interface Item {
   id: number;
   name: string;
   category_id: number;
-  created_by: number;
+  created_by: number | null;
 }
 
 // ---------- List Items ----------
@@ -99,6 +99,7 @@ export interface UpdateListItemRequest {
 // ---------- Socket Events ----------
 export interface ServerToClientEvents {
   'list:item-added': (data: { listId: number; listItem: ListItemWithDetails }) => void;
+  'list:items-added': (data: { listId: number; listItems: ListItemWithDetails[] }) => void;
   'list:item-checked': (data: { listId: number; listItemId: number; is_checked: boolean; checked_at: string | null }) => void;
   'list:item-removed': (data: { listId: number; listItemId: number }) => void;
   'list:item-updated': (data: { listId: number; listItem: ListItemWithDetails }) => void;

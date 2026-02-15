@@ -1,5 +1,6 @@
 import { useRef, useCallback } from 'react';
 import type { ListItemWithDetails } from '@nomnom/shared';
+import { hexToRgb, getTextColor } from '@/lib/colorUtils';
 
 export type PillVariant = 'active' | 'inactive';
 
@@ -9,13 +10,6 @@ interface PillProps {
   onCheck: () => void;
   onRemove: () => void;
   onEdit?: () => void;
-}
-
-function hexToRgb(hex: string) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return { r, g, b };
 }
 
 const LONG_PRESS_MS = 500;
@@ -48,6 +42,8 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
     onCheck();
   }, [onCheck]);
 
+  const textColor = getTextColor(color);
+
   if (variant === 'inactive') {
     return (
       <button
@@ -56,7 +52,7 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
         style={{
           backgroundColor: 'transparent',
           border: `2px solid ${color}`,
-          color: color,
+          color: textColor,
           opacity: 0.6,
         }}
       >
@@ -82,7 +78,7 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
         className="pill"
         style={{
           backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
-          color: color,
+          color: textColor,
         }}
       >
         <span className="font-medium">{item.item.name}</span>

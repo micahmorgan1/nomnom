@@ -132,6 +132,101 @@ router.post('/:listId/items', authenticate, async (req: AuthRequest, res: Respon
   }
 });
 
+router.post('/:listId/items/batch', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const listId = Number(req.params.listId);
+    await assertListAccess(req.user!.id, listId, true);
+
+    const { items } = req.body as { items: { item_id: number }[] };
+    if (!Array.isArray(items) || items.length === 0) {
+      res.status(400).json({ error: 'items array is required' });
+      return;
+    }
+
+    const userId = req.user!.id;
+    const added: number[] = [];
+
+    await db.transaction(async (trx) => {
+      // Get max sort_order once
+      const maxOrder = await trx('list_items')
+        .where({ list_id: listId, is_checked: false })
+        .max('sort_order as max')
+        .first();
+      let sortOrder = (maxOrder?.max ?? 0) + 1;
+
+      for (const { item_id } of items) {
+        // Look up the item
+        let item = await trx('items').where({ id: item_id }).first();
+        if (!item) continue;
+
+        // If system item (created_by = null), clone to user's library
+        if (item.created_by === null) {
+          // Check if user already has an item with this name
+          const existing = await trx('items')
+            .where({ name: item.name, created_by: userId })
+            .first();
+          if (existing) {
+            item = existing;
+          } else {
+            const [newId] = await trx('items').insert({
+              name: item.name,
+              category_id: item.category_id,
+              created_by: userId,
+            });
+            item = { id: newId, name: item.name, category_id: item.category_id, created_by: userId };
+          }
+        }
+
+        // Check if already on list
+        const onList = await trx('list_items')
+          .where({ list_id: listId, item_id: item.id })
+          .first();
+
+        if (onList) {
+          if (onList.is_checked) {
+            // Re-activate
+            await trx('list_items').where({ id: onList.id }).update({
+              is_checked: false,
+              checked_at: null,
+              quantity: '1',
+              notes: '',
+            });
+            added.push(onList.id);
+          }
+          // If active, skip silently
+          continue;
+        }
+
+        const [listItemId] = await trx('list_items').insert({
+          list_id: listId,
+          item_id: item.id,
+          quantity: '1',
+          notes: '',
+          sort_order: sortOrder++,
+        });
+        added.push(listItemId);
+      }
+    });
+
+    // Enrich all added/reactivated items
+    const enriched = (
+      await Promise.all(added.map((id) => enrichListItem(id)))
+    ).filter(Boolean);
+
+    // Emit socket event
+    const io = req.app.get('io');
+    if (io && enriched.length > 0) {
+      io.to(`list:${listId}`).emit('list:items-added', { listId, listItems: enriched });
+    }
+
+    res.status(201).json(enriched);
+  } catch (err) {
+    if (handleAccessError(err, res)) return;
+    console.error('Batch add error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.patch('/:listId/items/:listItemId', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const listId = Number(req.params.listId);

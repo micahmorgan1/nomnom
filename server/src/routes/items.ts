@@ -9,23 +9,55 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
     const search = req.query.search as string | undefined;
 
-    let query = db('items')
+    // Get user's own item names so we can exclude overridden system items
+    const userItemNames = await db('items')
+      .where('created_by', userId)
+      .select('name');
+    const userNames = new Set(userItemNames.map((r: { name: string }) => r.name.toLowerCase()));
+
+    // Fetch user items
+    let userQuery = db('items')
       .join('categories', 'items.category_id', 'categories.id')
       .where('items.created_by', userId)
       .select(
         'items.*',
         'categories.name as category_name',
         'categories.color as category_color'
-      )
-      .orderBy('items.name');
+      );
 
     if (search) {
-      query = query.where('items.name', 'like', `%${search}%`);
+      userQuery = userQuery.where('items.name', 'like', `%${search}%`);
     }
 
-    const items = await query;
+    const userItems = await userQuery;
+
+    // Fetch system items (created_by IS NULL), excluding those the user has overridden
+    let systemQuery = db('items')
+      .join('categories', 'items.category_id', 'categories.id')
+      .whereNull('items.created_by')
+      .select(
+        'items.*',
+        'categories.name as category_name',
+        'categories.color as category_color'
+      );
+
+    if (search) {
+      systemQuery = systemQuery.where('items.name', 'like', `%${search}%`);
+    }
+
+    const systemItems = await systemQuery;
+
+    // Merge: user items + system items not overridden by name
+    const allItems = [
+      ...userItems,
+      ...systemItems.filter((si: { name: string }) => !userNames.has(si.name.toLowerCase())),
+    ];
+
+    // Sort alphabetically
+    allItems.sort((a, b) => a.name.localeCompare(b.name));
+
     res.json(
-      items.map((i) => ({
+      allItems.map((i) => ({
         id: i.id,
         name: i.name,
         category_id: i.category_id,

@@ -5,6 +5,7 @@ import Pill from '@/components/Pill';
 import AddItemModal from '@/components/AddItemModal';
 import EditItemModal from '@/components/EditItemModal';
 import ShareModal from '@/components/ShareModal';
+import PantryDrawer from '@/components/PantryDrawer';
 import type { ListItemWithDetails } from '@nomnom/shared';
 
 function sortItemsByCategory(items: ListItemWithDetails[]): ListItemWithDetails[] {
@@ -21,13 +22,14 @@ export default function ListView() {
   const { id } = useParams<{ id: string }>();
   const listId = Number(id);
   const navigate = useNavigate();
-  const { list, loading, error, addItem, checkItem, updateItem, removeItem, clearChecked } = useList(listId);
+  const { list, loading, error, addItem, addItemsFromLibrary, checkItem, updateItem, removeItem, clearChecked } = useList(listId);
   const [showAdd, setShowAdd] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showPantry, setShowPantry] = useState(false);
   const [editingItem, setEditingItem] = useState<ListItemWithDetails | null>(null);
 
-  const { activeItems, inactiveItems, hasInactive } = useMemo(() => {
-    if (!list) return { activeItems: [], inactiveItems: [], hasInactive: false };
+  const { activeItems, inactiveItems, hasInactive, currentItemIds } = useMemo(() => {
+    if (!list) return { activeItems: [], inactiveItems: [], hasInactive: false, currentItemIds: new Set<number>() };
 
     const active = list.items.filter((i) => !i.is_checked);
     const inactive = list.items.filter((i) => i.is_checked);
@@ -36,6 +38,7 @@ export default function ListView() {
       activeItems: sortItemsByCategory(active),
       inactiveItems: sortItemsByCategory(inactive),
       hasInactive: inactive.length > 0,
+      currentItemIds: new Set(list.items.map((i) => i.item_id)),
     };
   }, [list]);
 
@@ -68,6 +71,15 @@ export default function ListView() {
           </svg>
         </button>
         <h2 className="text-lg font-semibold text-gray-800 flex-1">{list.name}</h2>
+        <button
+          onClick={() => setShowPantry(true)}
+          className="text-gray-400 hover:text-emerald-600 transition-colors"
+          title="Pantry"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        </button>
         {list.is_owner && (
           <button
             onClick={() => setShowShare(true)}
@@ -159,6 +171,13 @@ export default function ListView() {
         open={showShare}
         onClose={() => setShowShare(false)}
         listId={listId}
+      />
+
+      <PantryDrawer
+        open={showPantry}
+        onClose={() => setShowPantry(false)}
+        onAdd={addItemsFromLibrary}
+        currentItemIds={currentItemIds}
       />
     </div>
   );

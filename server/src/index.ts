@@ -19,7 +19,7 @@ import categoryRoutes from './routes/categories.js';
 import shareRoutes from './routes/shares.js';
 import { setupSocket } from './socket.js';
 import db from './db.js';
-import { DEFAULT_CATEGORIES } from '@nomnom/shared';
+import { DEFAULT_CATEGORIES, DEFAULT_ITEMS } from '@nomnom/shared';
 
 const app = express();
 const httpServer = createServer(app);
@@ -73,6 +73,34 @@ async function start() {
       }))
     );
     console.log(`Seeded ${DEFAULT_CATEGORIES.length} default categories.`);
+  }
+
+  // Seed system items (created_by = NULL) if not already present
+  const existingSystemItem = await db('items').whereNull('created_by').first();
+  if (!existingSystemItem) {
+    // Build a category name → id lookup from default categories
+    const defaultCats = await db('categories').where({ is_default: true }).select('id', 'name');
+    const catMap = new Map<string, number>();
+    for (const cat of defaultCats) {
+      catMap.set(cat.name, cat.id);
+    }
+
+    const toInsert = DEFAULT_ITEMS
+      .filter((item) => catMap.has(item.category))
+      .map((item) => ({
+        name: item.name,
+        category_id: catMap.get(item.category)!,
+        created_by: null,
+      }));
+
+    if (toInsert.length > 0) {
+      // Insert in batches (SQLite limits)
+      const BATCH = 50;
+      for (let i = 0; i < toInsert.length; i += BATCH) {
+        await db('items').insert(toInsert.slice(i, i + BATCH));
+      }
+      console.log(`Seeded ${toInsert.length} system items.`);
+    }
   }
 
   httpServer.listen(Number(PORT), '0.0.0.0', () => {

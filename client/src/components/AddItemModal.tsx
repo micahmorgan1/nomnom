@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useItemLibrary } from '@/hooks/useItemLibrary';
+import { getTextColor } from '@/lib/colorUtils';
 import CategoryPicker from './CategoryPicker';
 
 interface AddItemModalProps {
@@ -91,7 +92,7 @@ export default function AddItemModal({ open, onClose, onAdd }: AddItemModalProps
                   className="pill"
                   style={{
                     backgroundColor: item.category.color + '25',
-                    color: item.category.color,
+                    color: getTextColor(item.category.color),
                   }}
                 >
                   {item.name}

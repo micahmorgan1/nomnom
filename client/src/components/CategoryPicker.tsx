@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
+import { getTextColor } from '@/lib/colorUtils';
 import { PRESET_COLORS } from '@nomnom/shared';
 import type { Category } from '@nomnom/shared';
 
@@ -54,7 +55,7 @@ export default function CategoryPicker({ selected, onSelect }: CategoryPickerPro
             }`}
             style={{
               backgroundColor: selected === cat.id ? cat.color + '25' : undefined,
-              color: selected === cat.id ? cat.color : '#6b7280',
+              color: selected === cat.id ? getTextColor(cat.color) : '#6b7280',
             }}
           >
             <div
