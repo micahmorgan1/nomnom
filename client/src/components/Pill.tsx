@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
 import type { ListItemWithDetails } from '@nomnom/shared';
-import { hexToRgb, getTextColor } from '@/lib/colorUtils';
+import { getTextColor, getPillBackground } from '@/lib/colorUtils';
 
 export type PillVariant = 'active' | 'inactive';
 
@@ -16,7 +16,6 @@ const LONG_PRESS_MS = 500;
 
 export default function Pill({ item, variant = 'active', onCheck, onRemove, onEdit }: PillProps) {
   const color = item.category.color;
-  const rgb = hexToRgb(color);
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didLongPress = useRef(false);
 
@@ -75,6 +74,8 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
     );
   }
 
+  const bgColor = getPillBackground(color);
+
   return (
     <button
       onClick={handleClick}
@@ -87,8 +88,8 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
       onContextMenu={(e) => e.preventDefault()}
       className="pill"
       style={{
-        backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
-        color: textColor,
+        backgroundColor: bgColor,
+        color: '#ffffff',
       }}
     >
       <span className="font-medium">{item.item.name}</span>

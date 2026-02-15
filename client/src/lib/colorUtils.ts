@@ -59,6 +59,10 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
 
 const WHITE_LUMINANCE = 1; // relative luminance of #ffffff
 
+function toHex(r: number, g: number, b: number): string {
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
 /**
  * Returns a darkened version of the hex color that meets WCAG AA contrast (4.5:1)
  * against a white background. If the color already passes, returns it unchanged.
@@ -88,5 +92,39 @@ export function getTextColor(hex: string): string {
   }
 
   const [fr, fg, fb] = hslToRgb(h, s, lo);
-  return `#${fr.toString(16).padStart(2, '0')}${fg.toString(16).padStart(2, '0')}${fb.toString(16).padStart(2, '0')}`;
+  return toHex(fr, fg, fb);
+}
+
+/**
+ * Returns a version of the hex color adjusted so that white text on it meets
+ * WCAG AA contrast for large/bold text (3:1). Boosts saturation while
+ * darkening to keep colors vibrant rather than muddy.
+ */
+export function getPillBackground(hex: string): string {
+  const { r, g, b } = hexToRgb(hex);
+  const lum = relativeLuminance(r, g, b);
+  const TARGET = 3; // 3:1 for bold text (WCAG AA large text)
+
+  if (contrastRatio(WHITE_LUMINANCE, lum) >= TARGET) {
+    return hex;
+  }
+
+  const [h, s, l] = rgbToHsl(r, g, b);
+  // Boost saturation to keep the color vivid while darkening
+  const boostedS = Math.min(1, s * 1.3);
+  let lo = 0, hi = l;
+
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2;
+    const [tr, tg, tb] = hslToRgb(h, boostedS, mid);
+    const tLum = relativeLuminance(tr, tg, tb);
+    if (contrastRatio(WHITE_LUMINANCE, tLum) >= TARGET) {
+      lo = mid; // can go lighter
+    } else {
+      hi = mid; // need darker
+    }
+  }
+
+  const [fr, fg, fb] = hslToRgb(h, boostedS, lo);
+  return toHex(fr, fg, fb);
 }
