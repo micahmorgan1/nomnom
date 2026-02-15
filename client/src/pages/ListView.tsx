@@ -71,22 +71,13 @@ export default function ListView() {
           </svg>
         </button>
         <h2 className="text-lg font-semibold text-gray-800 flex-1">{list.name}</h2>
-        <button
-          onClick={() => setShowPantry(true)}
-          className="text-gray-400 hover:text-emerald-600 transition-colors"
-          title="Pantry"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-        </button>
         {list.is_owner && (
           <button
             onClick={() => setShowShare(true)}
-            className="text-gray-400 hover:text-emerald-600 transition-colors"
+            className="text-gray-400 hover:text-emerald-600 transition-colors p-1"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9A2.25 2.25 0 0016.5 8.25H15M12 2.25v12m0-12l3 3m-3-3l-3 3" />
             </svg>
           </button>
         )}
@@ -146,13 +137,24 @@ export default function ListView() {
         </>
       )}
 
-      {/* FAB */}
-      <button
-        onClick={() => setShowAdd(true)}
-        className="fixed bottom-20 right-4 w-14 h-14 bg-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-emerald-700 active:scale-95 transition-all"
-      >
-        +
-      </button>
+      {/* Bottom action buttons */}
+      <div className="fixed bottom-20 right-4 flex items-center gap-3">
+        <button
+          onClick={() => setShowPantry(true)}
+          className="h-14 px-5 bg-white text-gray-600 rounded-full shadow-lg flex items-center gap-2 hover:bg-gray-50 active:scale-95 transition-all border border-gray-200"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          <span className="text-sm font-medium">Pantry</span>
+        </button>
+        <button
+          onClick={() => setShowAdd(true)}
+          className="w-14 h-14 bg-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-emerald-700 active:scale-95 transition-all"
+        >
+          +
+        </button>
+      </div>
 
       <AddItemModal
         open={showAdd}

@@ -46,58 +46,58 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
 
   if (variant === 'inactive') {
     return (
-      <button
-        onClick={onCheck}
-        className="pill"
-        style={{
-          backgroundColor: 'transparent',
-          border: `2px solid ${color}`,
-          color: textColor,
-          opacity: 0.6,
-        }}
-      >
-        <span>{item.item.name}</span>
-        {item.quantity && item.quantity !== '1' && (
-          <span className="ml-1 text-xs opacity-70">&times;{item.quantity}</span>
-        )}
-      </button>
+      <div className="group relative inline-flex">
+        <button
+          onClick={onCheck}
+          className="pill"
+          style={{
+            backgroundColor: 'transparent',
+            border: `2px solid ${color}`,
+            color: textColor,
+            opacity: 0.6,
+          }}
+        >
+          <span>{item.item.name}</span>
+          {item.quantity && item.quantity !== '1' && (
+            <span className="ml-1 text-xs opacity-70">&times;{item.quantity}</span>
+          )}
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-xs leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          &times;
+        </button>
+      </div>
     );
   }
 
   return (
-    <div className="group relative inline-flex">
-      <button
-        onClick={handleClick}
-        onMouseDown={startPress}
-        onMouseUp={endPress}
-        onMouseLeave={endPress}
-        onTouchStart={startPress}
-        onTouchEnd={endPress}
-        onTouchCancel={endPress}
-        onContextMenu={(e) => e.preventDefault()}
-        className="pill"
-        style={{
-          backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
-          color: textColor,
-        }}
-      >
-        <span className="font-medium">{item.item.name}</span>
-        {item.quantity && item.quantity !== '1' && (
-          <span className="ml-1.5 text-xs opacity-70 font-normal">&times;{item.quantity}</span>
-        )}
-        {item.notes && (
-          <span className="ml-1.5 text-xs opacity-50 font-normal">({item.notes})</span>
-        )}
-      </button>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove();
-        }}
-        className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gray-400 text-white text-xs leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        &times;
-      </button>
-    </div>
+    <button
+      onClick={handleClick}
+      onMouseDown={startPress}
+      onMouseUp={endPress}
+      onMouseLeave={endPress}
+      onTouchStart={startPress}
+      onTouchEnd={endPress}
+      onTouchCancel={endPress}
+      onContextMenu={(e) => e.preventDefault()}
+      className="pill"
+      style={{
+        backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
+        color: textColor,
+      }}
+    >
+      <span className="font-medium">{item.item.name}</span>
+      {item.quantity && item.quantity !== '1' && (
+        <span className="ml-1.5 text-xs opacity-70 font-normal">&times;{item.quantity}</span>
+      )}
+      {item.notes && (
+        <span className="ml-1.5 text-xs opacity-50 font-normal">({item.notes})</span>
+      )}
+    </button>
   );
 }
