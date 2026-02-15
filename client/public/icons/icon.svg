@@ -8,20 +8,18 @@
   <!-- Rounded square background -->
   <rect width="512" height="512" rx="108" ry="108" fill="url(#bg)"/>
   <!-- Face circle -->
-  <circle cx="256" cy="230" r="130" fill="white" opacity="0.95"/>
+  <circle cx="256" cy="256" r="175" fill="white" opacity="0.95"/>
   <!-- Eyes -->
-  <circle cx="212" cy="200" r="16" fill="#1e293b"/>
-  <circle cx="300" cy="200" r="16" fill="#1e293b"/>
+  <circle cx="197" cy="216" r="21" fill="#1e293b"/>
+  <circle cx="315" cy="216" r="21" fill="#1e293b"/>
   <!-- Eye shine -->
-  <circle cx="218" cy="194" r="5" fill="white"/>
-  <circle cx="306" cy="194" r="5" fill="white"/>
+  <circle cx="205" cy="208" r="7" fill="white"/>
+  <circle cx="323" cy="208" r="7" fill="white"/>
   <!-- Open mouth (eating!) -->
-  <ellipse cx="256" cy="275" rx="45" ry="35" fill="#059669"/>
+  <ellipse cx="256" cy="316" rx="60" ry="47" fill="#059669"/>
   <!-- Tongue -->
-  <ellipse cx="256" cy="290" rx="25" ry="14" fill="#f87171" opacity="0.85"/>
+  <ellipse cx="256" cy="336" rx="34" ry="19" fill="#f87171" opacity="0.85"/>
   <!-- Cheek blush -->
-  <circle cx="180" cy="250" r="18" fill="#f9a8d4" opacity="0.35"/>
-  <circle cx="332" cy="250" r="18" fill="#f9a8d4" opacity="0.35"/>
-  <!-- "nomnom" text -->
-  <text x="256" y="425" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="68" font-weight="800" fill="white" opacity="0.95" letter-spacing="2">nomnom</text>
+  <circle cx="154" cy="283" r="24" fill="#f9a8d4" opacity="0.35"/>
+  <circle cx="358" cy="283" r="24" fill="#f9a8d4" opacity="0.35"/>
 </svg>

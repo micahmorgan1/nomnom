@@ -2,6 +2,8 @@
 
 Grocery/list PWA — color-coded pill-shaped items that flow inline, grouped by category, with check-off, item memory, real-time sync, and list sharing.
 
+Inspired by [Idealist](https://apps.apple.com/us/app/id971870098), a now-expired iOS grocery list app with color-coded categories and a visual, tap-to-check-off design.
+
 ## Repository
 - Remote: git@github.com:micahmorgan1/nomnom.git
 - Default branch: main

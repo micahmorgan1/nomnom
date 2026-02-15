@@ -117,7 +117,13 @@ export function useList(listId: number) {
           ...prev,
           items: prev.items.map((i) =>
             i.id === listItemId
-              ? { ...i, is_checked, checked_at: is_checked ? new Date().toISOString() : null }
+              ? {
+                  ...i,
+                  is_checked,
+                  checked_at: is_checked ? new Date().toISOString() : null,
+                  // Reset quantity and notes when checking off
+                  ...(is_checked ? { quantity: '1', notes: '' } : {}),
+                }
               : i
           ),
         };

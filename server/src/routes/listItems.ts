@@ -150,6 +150,11 @@ router.patch('/:listId/items/:listItemId', authenticate, async (req: AuthRequest
     if (req.body.is_checked !== undefined) {
       updates.is_checked = req.body.is_checked;
       updates.checked_at = req.body.is_checked ? new Date().toISOString() : null;
+      // Reset quantity and notes when checking off an item
+      if (req.body.is_checked) {
+        updates.quantity = '1';
+        updates.notes = '';
+      }
     }
 
     const categoryUpdate = req.body.category_id !== undefined ? req.body.category_id : undefined;
