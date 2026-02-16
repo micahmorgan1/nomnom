@@ -1,21 +1,19 @@
 export const DEFAULT_CATEGORIES = [
-  { name: 'Produce',        color: '#16a34a' },
-  { name: 'Meat',           color: '#dc2626' },
-  { name: 'Dairy',          color: '#2563eb' },
-  { name: 'Bakery',         color: '#d97706' },
-  { name: 'Frozen',         color: '#0891b2' },
-  { name: 'Beverages',      color: '#7c3aed' },
-  { name: 'Snacks',         color: '#ea580c' },
-  { name: 'Canned Goods',   color: '#92400e' },
-  { name: 'Household',      color: '#4f46e5' },
-  { name: 'Personal Care',  color: '#db2777' },
+  { name: 'Produce',        color: '#34C759' },  // jade_green
+  { name: 'Meat',           color: '#FF4B2B' },  // blazing_flame
+  { name: 'Dairy',          color: '#007AFF' },  // azure_blue
+  { name: 'Bakery',         color: '#FF9500' },  // deep_saffron
+  { name: 'Frozen',         color: '#5AC8FA' },  // sky_aqua
+  { name: 'Beverages',      color: '#AF52DE' },  // lavender_purple
+  { name: 'Snacks',         color: '#FF6F61' },  // vibrant_coral
+  { name: 'Canned Goods',   color: '#FFDC00' },  // bright_gold
+  { name: 'Household',      color: '#5856D6' },  // violet_twilight
+  { name: 'Personal Care',  color: '#E91E63' },  // magenta_bloom
   { name: 'Other',          color: '#737373' },
 ] as const;
 
 export const PRESET_COLORS = [
-  '#dc2626', '#ea580c', '#d97706', '#ca8a04',
-  '#65a30d', '#16a34a', '#059669', '#0d9488',
-  '#0891b2', '#0284c7', '#2563eb', '#4f46e5',
-  '#7c3aed', '#9333ea', '#c026d3', '#db2777',
-  '#e11d48', '#92400e', '#475569', '#737373',
+  '#FF4B2B', '#FF6F61', '#FF9500', '#FFDC00',
+  '#34C759', '#5AC8FA', '#007AFF', '#5856D6',
+  '#AF52DE', '#E91E63', '#737373',
 ] as const;

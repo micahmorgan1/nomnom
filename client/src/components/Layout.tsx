@@ -7,13 +7,13 @@ export default function Layout() {
   const location = useLocation();
 
   const isActive = (path: string) =>
-    location.pathname === path ? 'text-emerald-600' : 'text-gray-400';
+    location.pathname === path ? 'text-accent-500' : 'text-gray-400';
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Top bar */}
       <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between safe-top">
-        <button onClick={() => navigate('/')} className="text-xl font-bold text-emerald-600">
+        <button onClick={() => navigate('/')} className="text-xl font-bold text-accent-500">
           nomnom
         </button>
         <div className="flex items-center gap-3">

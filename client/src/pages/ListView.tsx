@@ -53,7 +53,7 @@ export default function ListView() {
   if (error || !list) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-red-400">{error || 'List not found'}</div>
+        <div className="text-danger-400">{error || 'List not found'}</div>
       </div>
     );
   }
@@ -74,7 +74,7 @@ export default function ListView() {
         {list.is_owner && (
           <button
             onClick={() => setShowShare(true)}
-            className="text-gray-400 hover:text-emerald-600 transition-colors p-1"
+            className="text-gray-400 hover:text-accent-500 transition-colors p-1"
           >
             <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9A2.25 2.25 0 0016.5 8.25H15M12 2.25v12m0-12l3 3m-3-3l-3 3" />
@@ -110,7 +110,7 @@ export default function ListView() {
             <>
               <div className="flex items-center gap-3 my-6">
                 <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Inactive</span>
+                <span className="text-xs font-medium text-gray-800 uppercase tracking-wider">Inactive</span>
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
 
@@ -128,7 +128,7 @@ export default function ListView() {
 
               <button
                 onClick={clearChecked}
-                className="mt-2 text-xs text-red-400 hover:text-red-600 transition-colors"
+                className="mt-2 text-xs text-danger-400 hover:text-danger-500 transition-colors"
               >
                 Clear all inactive
               </button>
@@ -150,7 +150,7 @@ export default function ListView() {
         </button>
         <button
           onClick={() => setShowAdd(true)}
-          className="w-14 h-14 bg-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-emerald-700 active:scale-95 transition-all"
+          className="w-14 h-14 bg-accent-500 text-white rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-accent-600 active:scale-95 transition-all"
         >
           +
         </button>

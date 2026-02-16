@@ -65,18 +65,18 @@ export default function ShareModal({ open, onClose, listId }: ShareModalProps) {
               placeholder="Username..."
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="flex-1 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
             />
             <button
               type="submit"
               disabled={loading || !username.trim()}
-              className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+              className="px-4 py-2 bg-accent-500 text-white text-sm font-medium rounded-lg hover:bg-accent-600 disabled:opacity-50"
             >
               Share
             </button>
           </form>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-sm text-danger-400">{error}</p>}
 
           {shares.length > 0 && (
             <div>
@@ -87,7 +87,7 @@ export default function ShareModal({ open, onClose, listId }: ShareModalProps) {
                     <span className="text-sm font-medium">{share.username}</span>
                     <button
                       onClick={() => handleRevoke(share.user_id)}
-                      className="text-xs text-red-400 hover:text-red-600"
+                      className="text-xs text-danger-400 hover:text-danger-500"
                     >
                       Remove
                     </button>

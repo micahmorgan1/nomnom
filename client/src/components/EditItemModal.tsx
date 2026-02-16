@@ -71,7 +71,7 @@ export default function EditItemModal({ open, item, onClose, onSave }: EditItemM
                 type="text"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
               />
             </div>
             <div className="flex-1">
@@ -81,7 +81,7 @@ export default function EditItemModal({ open, item, onClose, onSave }: EditItemM
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Optional..."
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
               />
             </div>
           </div>
@@ -89,7 +89,7 @@ export default function EditItemModal({ open, item, onClose, onSave }: EditItemM
           <button
             type="submit"
             disabled={!categoryId || submitting}
-            className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+            className="w-full py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 disabled:opacity-50 transition-colors"
           >
             {submitting ? 'Saving...' : 'Save'}
           </button>

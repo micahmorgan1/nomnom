@@ -64,6 +64,16 @@ function toHex(r: number, g: number, b: number): string {
 }
 
 /**
+ * Returns white or black depending on which has better contrast against the
+ * given background color. Prefers white unless it fails WCAG AA for large text (3:1).
+ */
+export function getPillTextColor(hex: string): string {
+  const { r, g, b } = hexToRgb(hex);
+  const lum = relativeLuminance(r, g, b);
+  return contrastRatio(WHITE_LUMINANCE, lum) >= 3 ? '#ffffff' : '#000000';
+}
+
+/**
  * Returns a darkened version of the hex color that meets WCAG AA contrast (4.5:1)
  * against a white background. If the color already passes, returns it unchanged.
  */

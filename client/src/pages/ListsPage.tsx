@@ -38,7 +38,7 @@ export default function ListsPage() {
         <h2 className="text-lg font-semibold text-gray-800">My Lists</h2>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="w-9 h-9 flex items-center justify-center bg-emerald-600 text-white rounded-full text-xl hover:bg-emerald-700 transition-colors"
+          className="w-9 h-9 flex items-center justify-center bg-accent-500 text-white rounded-full text-xl hover:bg-accent-600 transition-colors"
         >
           +
         </button>
@@ -52,13 +52,13 @@ export default function ListsPage() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-            className="flex-1 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+            className="flex-1 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
             autoFocus
           />
           <button
             onClick={handleCreate}
             disabled={creating || !newName.trim()}
-            className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+            className="px-4 py-2 bg-accent-500 text-white text-sm font-medium rounded-lg hover:bg-accent-600 disabled:opacity-50"
           >
             Create
           </button>
@@ -87,7 +87,7 @@ export default function ListsPage() {
                       <span> / {list.total_count} total</span>
                     )}
                     {!list.is_owner && list.owner_username && (
-                      <span className="ml-2 text-emerald-500">Shared by {list.owner_username}</span>
+                      <span className="ml-2 text-accent-400">Shared by {list.owner_username}</span>
                     )}
                   </p>
                 </div>
@@ -97,7 +97,7 @@ export default function ListsPage() {
                       e.stopPropagation();
                       if (confirm(`Delete "${list.name}"?`)) deleteList(list.id);
                     }}
-                    className="text-gray-300 hover:text-red-400 transition-colors p-1"
+                    className="text-gray-300 hover:text-danger-400 transition-colors p-1"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

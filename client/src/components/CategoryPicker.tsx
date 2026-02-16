@@ -83,7 +83,7 @@ export default function CategoryPicker({ selected, onSelect }: CategoryPickerPro
             placeholder="Category name..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
             autoFocus
           />
           <div className="flex flex-wrap gap-1.5">
@@ -104,7 +104,7 @@ export default function CategoryPicker({ selected, onSelect }: CategoryPickerPro
               type="button"
               onClick={handleCreate}
               disabled={!newName.trim() || submitting}
-              className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+              className="px-3 py-1.5 bg-accent-500 text-white text-xs font-medium rounded-lg hover:bg-accent-600 disabled:opacity-50 transition-colors"
             >
               {submitting ? 'Creating...' : 'Create'}
             </button>

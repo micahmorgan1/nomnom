@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
 import type { ListItemWithDetails } from '@nomnom/shared';
-import { getTextColor, getPillBackground } from '@/lib/colorUtils';
+import { getTextColor, hexToRgb } from '@/lib/colorUtils';
 
 export type PillVariant = 'active' | 'inactive';
 
@@ -50,10 +50,9 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
           onClick={onCheck}
           className="pill"
           style={{
-            backgroundColor: 'transparent',
-            border: `2px solid ${color}`,
-            color: textColor,
-            opacity: 0.6,
+            backgroundColor: '#ffffff',
+            border: `3px solid rgba(${hexToRgb(color).r}, ${hexToRgb(color).g}, ${hexToRgb(color).b}, 0.35)`,
+            color: '#6b7280',
           }}
         >
           <span>{item.item.name}</span>
@@ -66,15 +65,13 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
             e.stopPropagation();
             onRemove();
           }}
-          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-xs leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-danger-400 text-white text-xs leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
         >
           &times;
         </button>
       </div>
     );
   }
-
-  const bgColor = getPillBackground(color);
 
   return (
     <button
@@ -88,8 +85,9 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
       onContextMenu={(e) => e.preventDefault()}
       className="pill"
       style={{
-        backgroundColor: bgColor,
-        color: '#ffffff',
+        backgroundColor: `rgba(${hexToRgb(color).r}, ${hexToRgb(color).g}, ${hexToRgb(color).b}, 0.1)`,
+        border: `3px solid rgba(${hexToRgb(color).r}, ${hexToRgb(color).g}, ${hexToRgb(color).b}, 0.35)`,
+        color: '#6b7280',
       }}
     >
       <span className="font-medium">{item.item.name}</span>

@@ -56,7 +56,7 @@ export default function SettingsPage() {
           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Categories</h3>
           <button
             onClick={() => setShowNewCat(!showNewCat)}
-            className="text-xs text-emerald-600 font-medium"
+            className="text-xs text-accent-500 font-medium"
           >
             {showNewCat ? 'Cancel' : '+ Add'}
           </button>
@@ -69,7 +69,7 @@ export default function SettingsPage() {
               placeholder="Category name..."
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
               autoFocus
             />
             <div className="flex flex-wrap gap-2">
@@ -87,7 +87,7 @@ export default function SettingsPage() {
             <button
               onClick={createCategory}
               disabled={!newCatName.trim()}
-              className="w-full py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+              className="w-full py-2 bg-accent-500 text-white text-sm font-medium rounded-lg hover:bg-accent-600 disabled:opacity-50"
             >
               Create Category
             </button>
@@ -110,7 +110,7 @@ export default function SettingsPage() {
               {!cat.is_default && (
                 <button
                   onClick={() => deleteCategory(cat.id)}
-                  className="text-xs text-gray-300 hover:text-red-400"
+                  className="text-xs text-gray-300 hover:text-danger-400"
                 >
                   Delete
                 </button>

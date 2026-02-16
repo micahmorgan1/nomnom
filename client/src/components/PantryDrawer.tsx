@@ -145,14 +145,14 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
                     >
                       <svg
                         className={`w-4 h-4 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
-                        style={{ color: textColor }}
+                        style={{ color: '#374151' }}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
-                      <span className="text-sm font-semibold" style={{ color: textColor }}>
+                      <span className="text-sm font-semibold" style={{ color: '#374151' }}>
                         {group.name}
                       </span>
                       <span className="text-xs text-gray-400">({group.items.length})</span>
@@ -169,16 +169,17 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
                               key={item.id}
                               onClick={() => toggleSelect(item.id)}
                               className={`pill relative transition-all ${
-                                isSelected ? 'ring-2 ring-emerald-500 scale-105' : ''
+                                isSelected ? 'ring-2 ring-accent-400 scale-105' : ''
                               }`}
                               style={{
-                                backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
-                                color: textColor,
+                                backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`,
+                                border: `3px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.35)`,
+                                color: '#6b7280',
                               }}
                             >
                               {isSelected && (
                                 <svg
-                                  className="w-3.5 h-3.5 mr-0.5 text-emerald-600 inline-block"
+                                  className="w-3.5 h-3.5 mr-0.5 text-accent-500 inline-block"
                                   fill="none"
                                   stroke="currentColor"
                                   viewBox="0 0 24 24"
@@ -205,7 +206,7 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
             <button
               onClick={handleAdd}
               disabled={submitting}
-              className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+              className="w-full py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 disabled:opacity-50 transition-colors"
             >
               {submitting ? 'Adding...' : `Add ${selected.size} item${selected.size !== 1 ? 's' : ''}`}
             </button>

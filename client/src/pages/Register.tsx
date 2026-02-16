@@ -34,17 +34,17 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
-        <h1 className="text-4xl font-bold text-emerald-600 text-center mb-8">nomnom</h1>
+        <h1 className="text-4xl font-bold text-accent-500 text-center mb-8">nomnom</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>
+            <div className="bg-danger-50 text-danger-500 text-sm p-3 rounded-lg">{error}</div>
           )}
           <input
             type="text"
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400"
             autoComplete="username"
             required
           />
@@ -54,7 +54,7 @@ export default function Register() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400"
             autoComplete="new-password"
             required
             minLength={6}
@@ -64,21 +64,21 @@ export default function Register() {
             placeholder="Confirm password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400"
             autoComplete="new-password"
             required
           />
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+            className="w-full py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
         <p className="text-center text-sm text-gray-500 mt-4">
           Already have an account?{' '}
-          <Link to="/login" className="text-emerald-600 hover:underline">Log in</Link>
+          <Link to="/login" className="text-accent-500 hover:underline">Log in</Link>
         </p>
       </div>
     </div>

@@ -77,7 +77,7 @@ export default function AddItemModal({ open, onClose, onAdd }: AddItemModalProps
             placeholder="Item name..."
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400"
             autoFocus
           />
 
@@ -115,7 +115,7 @@ export default function AddItemModal({ open, onClose, onAdd }: AddItemModalProps
                 type="text"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
               />
             </div>
             <div className="flex-1">
@@ -125,19 +125,19 @@ export default function AddItemModal({ open, onClose, onAdd }: AddItemModalProps
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Optional..."
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
               />
             </div>
           </div>
 
           {error && (
-            <p className="text-sm text-red-500 text-center">{error}</p>
+            <p className="text-sm text-danger-400 text-center">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={!name.trim() || !categoryId || submitting}
-            className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+            className="w-full py-3 bg-accent-500 text-white font-semibold rounded-lg hover:bg-accent-600 disabled:opacity-50 transition-colors"
           >
             {submitting ? 'Adding...' : 'Add Item'}
           </button>
