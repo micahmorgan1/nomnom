@@ -50,14 +50,14 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    // Only allow editing own custom categories
-    if (category.is_default || (category.user_id && category.user_id !== req.user!.id)) {
+    // Allow color edits on default categories, full edits on own custom categories
+    if (category.user_id && category.user_id !== req.user!.id) {
       res.status(403).json({ error: 'Cannot edit this category' });
       return;
     }
 
     const updates: Record<string, any> = {};
-    if (req.body.name) updates.name = req.body.name.trim();
+    if (!category.is_default && req.body.name) updates.name = req.body.name.trim();
     if (req.body.color) updates.color = req.body.color;
 
     await db('categories').where({ id: catId }).update(updates);

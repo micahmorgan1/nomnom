@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useItemLibrary } from '@/hooks/useItemLibrary';
-import { hexToRgb, getTextColor } from '@/lib/colorUtils';
+import { hexToRgb, getTextColor, getColoredPillText } from '@/lib/colorUtils';
 
 interface PantryDrawerProps {
   open: boolean;
@@ -172,9 +172,10 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
                                 isSelected ? 'ring-2 ring-accent-400 scale-105' : ''
                               }`}
                               style={{
-                                backgroundColor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`,
-                                border: `3px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.35)`,
-                                color: '#6b7280',
+                                backgroundColor: '#ffffff',
+                                border: `2px solid rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`,
+                                color: getColoredPillText(group.color, 0),
+                                opacity: 0.7,
                               }}
                             >
                               {isSelected && (

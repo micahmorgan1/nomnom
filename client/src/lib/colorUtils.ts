@@ -64,13 +64,39 @@ function toHex(r: number, g: number, b: number): string {
 }
 
 /**
- * Returns white or black depending on which has better contrast against the
- * given background color. Prefers white unless it fails WCAG AA for large text (3:1).
+ * Returns a colored text value for use on a tinted pill background.
+ * Uses the category color directly if it meets 3:1 contrast against
+ * the tinted background, otherwise darkens it until it does.
  */
-export function getPillTextColor(hex: string): string {
+export function getColoredPillText(hex: string, bgAlpha: number = 0.1): string {
   const { r, g, b } = hexToRgb(hex);
-  const lum = relativeLuminance(r, g, b);
-  return contrastRatio(WHITE_LUMINANCE, lum) >= 3 ? '#ffffff' : '#000000';
+
+  // Effective background: white blended with bgAlpha of the color
+  const bgR = Math.round(255 * (1 - bgAlpha) + r * bgAlpha);
+  const bgG = Math.round(255 * (1 - bgAlpha) + g * bgAlpha);
+  const bgB = Math.round(255 * (1 - bgAlpha) + b * bgAlpha);
+  const bgLum = relativeLuminance(bgR, bgG, bgB);
+  const textLum = relativeLuminance(r, g, b);
+
+  if (contrastRatio(bgLum, textLum) >= 3) {
+    return hex;
+  }
+
+  // Darken via HSL until we hit 3:1
+  const [h, s, l] = rgbToHsl(r, g, b);
+  let lo = 0, hi = l;
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2;
+    const [tr, tg, tb] = hslToRgb(h, s, mid);
+    const tLum = relativeLuminance(tr, tg, tb);
+    if (contrastRatio(bgLum, tLum) >= 3) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+  const [fr, fg, fb] = hslToRgb(h, s, lo);
+  return toHex(fr, fg, fb);
 }
 
 /**

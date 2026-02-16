@@ -10,6 +10,18 @@ export default function SettingsPage() {
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState<string>(PRESET_COLORS[0]);
   const [showNewCat, setShowNewCat] = useState(false);
+  const [editingColorId, setEditingColorId] = useState<number | null>(null);
+  const [stagedColor, setStagedColor] = useState<string | null>(null);
+
+  function startEditing(cat: Category) {
+    if (editingColorId === cat.id) {
+      setEditingColorId(null);
+      setStagedColor(null);
+    } else {
+      setEditingColorId(cat.id);
+      setStagedColor(cat.color);
+    }
+  }
 
   useEffect(() => {
     api.get<Category[]>('/categories').then(setCategories).catch(() => {});
@@ -25,6 +37,16 @@ export default function SettingsPage() {
       setCategories((prev) => [...prev, cat]);
       setNewCatName('');
       setShowNewCat(false);
+    } catch {
+      // handled
+    }
+  }
+
+  async function updateColor(id: number, color: string) {
+    try {
+      const updated = await api.put<Category>(`/categories/${id}`, { color });
+      setCategories((prev) => prev.map((c) => (c.id === id ? updated : c)));
+      setEditingColorId(null);
     } catch {
       // handled
     }
@@ -96,24 +118,64 @@ export default function SettingsPage() {
 
         <div className="space-y-1">
           {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="bg-white rounded-xl px-4 py-3 shadow-sm border border-gray-100 flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: cat.color }}
-                />
-                <span className="text-sm font-medium text-gray-700">{cat.name}</span>
+            <div key={cat.id} className="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div className="px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => startEditing(cat)}
+                    className="w-6 h-6 rounded-full ring-1 ring-gray-200 transition-transform hover:scale-110"
+                    style={{ backgroundColor: editingColorId === cat.id && stagedColor ? stagedColor : cat.color }}
+                  />
+                  <span className="text-sm font-medium text-gray-700">{cat.name}</span>
+                </div>
+                {!cat.is_default && (
+                  <button
+                    onClick={() => deleteCategory(cat.id)}
+                    className="text-xs text-gray-300 hover:text-danger-400"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
-              {!cat.is_default && (
-                <button
-                  onClick={() => deleteCategory(cat.id)}
-                  className="text-xs text-gray-300 hover:text-danger-400"
-                >
-                  Delete
-                </button>
+              {editingColorId === cat.id && (
+                <div className="px-4 pb-3 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    {PRESET_COLORS.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setStagedColor(color)}
+                        className={`w-7 h-7 rounded-full transition-all ${
+                          stagedColor === color ? 'ring-2 ring-offset-2 ring-gray-800 scale-110' : ''
+                        }`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                    <label className="w-7 h-7 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors overflow-hidden">
+                      <input
+                        type="color"
+                        value={stagedColor || cat.color}
+                        onChange={(e) => setStagedColor(e.target.value)}
+                        className="absolute w-0 h-0 opacity-0"
+                      />
+                      <span className="text-gray-400 text-xs">+</span>
+                    </label>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => stagedColor && updateColor(cat.id, stagedColor)}
+                      disabled={!stagedColor || stagedColor === cat.color}
+                      className="px-3 py-1.5 bg-accent-500 text-white text-xs font-medium rounded-lg hover:bg-accent-600 disabled:opacity-50 transition-colors"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => { setEditingColorId(null); setStagedColor(null); }}
+                      className="px-3 py-1.5 text-gray-500 text-xs font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           ))}

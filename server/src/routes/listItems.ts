@@ -60,18 +60,20 @@ router.post('/:listId/items', authenticate, async (req: AuthRequest, res: Respon
       return;
     }
 
-    // Find or create item in library
+    // Find or create item in library (normalize to lowercase)
+    const normalizedName = name.trim().toLowerCase();
     let item = await db('items')
-      .where({ name: name.trim(), created_by: req.user!.id })
+      .whereRaw('lower(name) = ?', [normalizedName])
+      .where({ created_by: req.user!.id })
       .first();
 
     if (!item) {
       const [itemId] = await db('items').insert({
-        name: name.trim(),
+        name: normalizedName,
         category_id,
         created_by: req.user!.id,
       });
-      item = { id: itemId, name: name.trim(), category_id, created_by: req.user!.id };
+      item = { id: itemId, name: normalizedName, category_id, created_by: req.user!.id };
     }
 
     // Check if this item already exists on the list
@@ -161,19 +163,21 @@ router.post('/:listId/items/batch', authenticate, async (req: AuthRequest, res: 
 
         // If system item (created_by = null), clone to user's library
         if (item.created_by === null) {
-          // Check if user already has an item with this name
+          // Check if user already has an item with this name (case-insensitive)
           const existing = await trx('items')
-            .where({ name: item.name, created_by: userId })
+            .whereRaw('lower(name) = ?', [item.name.toLowerCase()])
+            .where({ created_by: userId })
             .first();
           if (existing) {
             item = existing;
           } else {
+            const lowName = item.name.toLowerCase();
             const [newId] = await trx('items').insert({
-              name: item.name,
+              name: lowName,
               category_id: item.category_id,
               created_by: userId,
             });
-            item = { id: newId, name: item.name, category_id: item.category_id, created_by: userId };
+            item = { id: newId, name: lowName, category_id: item.category_id, created_by: userId };
           }
         }
 

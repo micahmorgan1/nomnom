@@ -1,6 +1,6 @@
 import { useRef, useCallback } from 'react';
 import type { ListItemWithDetails } from '@nomnom/shared';
-import { getTextColor, hexToRgb } from '@/lib/colorUtils';
+import { getColoredPillText, hexToRgb } from '@/lib/colorUtils';
 
 export type PillVariant = 'active' | 'inactive';
 
@@ -41,7 +41,7 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
     onCheck();
   }, [onCheck]);
 
-  const textColor = getTextColor(color);
+  const coloredText = getColoredPillText(color, 0);
 
   if (variant === 'inactive') {
     return (
@@ -51,8 +51,9 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
           className="pill"
           style={{
             backgroundColor: '#ffffff',
-            border: `3px solid rgba(${hexToRgb(color).r}, ${hexToRgb(color).g}, ${hexToRgb(color).b}, 0.35)`,
-            color: '#6b7280',
+            border: `2px solid rgba(${hexToRgb(color).r}, ${hexToRgb(color).g}, ${hexToRgb(color).b}, 0.5)`,
+            color: coloredText,
+            opacity: 0.7,
           }}
         >
           <span>{item.item.name}</span>
@@ -86,8 +87,8 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
       className="pill"
       style={{
         backgroundColor: `rgba(${hexToRgb(color).r}, ${hexToRgb(color).g}, ${hexToRgb(color).b}, 0.1)`,
-        border: `3px solid rgba(${hexToRgb(color).r}, ${hexToRgb(color).g}, ${hexToRgb(color).b}, 0.35)`,
-        color: '#6b7280',
+        border: `2px solid rgba(${hexToRgb(color).r}, ${hexToRgb(color).g}, ${hexToRgb(color).b}, 0.35)`,
+        color: getColoredPillText(color, 0.1),
       }}
     >
       <span className="font-medium">{item.item.name}</span>
