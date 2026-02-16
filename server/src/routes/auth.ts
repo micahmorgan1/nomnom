@@ -9,6 +9,7 @@ const router = Router();
 const registerSchema = z.object({
   username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
   password: z.string().min(6),
+  inviteCode: z.string().optional(),
 });
 
 const loginSchema = z.object({
@@ -19,6 +20,13 @@ const loginSchema = z.object({
 router.post('/register', async (req: AuthRequest, res: Response) => {
   try {
     const body = registerSchema.parse(req.body);
+
+    const requiredCode = process.env.INVITE_CODE;
+    if (requiredCode && body.inviteCode !== requiredCode) {
+      res.status(403).json({ error: 'Invalid invite code' });
+      return;
+    }
+
     const existing = await db('users').where({ username: body.username }).first();
     if (existing) {
       res.status(409).json({ error: 'Username already taken' });

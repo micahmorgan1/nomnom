@@ -25,16 +25,21 @@ const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3002;
 
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 // Socket.IO
 const io = new SocketServer(httpServer, {
-  cors: { origin: '*' },
+  cors: { origin: ALLOWED_ORIGINS },
 });
 setupSocket(io);
 app.set('io', io);
 
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors());
+app.use(cors({ origin: ALLOWED_ORIGINS }));
 app.use(express.json());
 
 // API Routes
