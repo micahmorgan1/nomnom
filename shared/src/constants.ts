@@ -17,3 +17,18 @@ export const PRESET_COLORS = [
   '#34C759', '#5AC8FA', '#007AFF', '#5856D6',
   '#AF52DE', '#E91E63', '#737373',
 ] as const;
+
+export const PASSWORD_RULES = [
+  { test: (p: string) => p.length >= 6, label: 'At least 6 characters' },
+  { test: (p: string) => /[A-Z]/.test(p), label: 'One uppercase letter' },
+  { test: (p: string) => /[0-9]/.test(p), label: 'One number' },
+  { test: (p: string) => /[^a-zA-Z0-9]/.test(p), label: 'One special character' },
+] as const;
+
+export function validatePassword(password: string): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  for (const rule of PASSWORD_RULES) {
+    if (!rule.test(password)) errors.push(rule.label);
+  }
+  return { valid: errors.length === 0, errors };
+}

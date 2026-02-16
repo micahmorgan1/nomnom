@@ -7,6 +7,7 @@ import Register from '@/pages/Register';
 import ListsPage from '@/pages/ListsPage';
 import ListView from '@/pages/ListView';
 import SettingsPage from '@/pages/SettingsPage';
+import AdminPage from '@/pages/AdminPage';
 import { ReactNode } from 'react';
 
 function PrivateRoute({ children }: { children: ReactNode }) {
@@ -51,6 +52,7 @@ export default function App() {
               <Route index element={<ListsPage />} />
               <Route path="lists/:id" element={<ListView />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="admin" element={<AdminPage />} />
             </Route>
           </Routes>
         </SocketProvider>

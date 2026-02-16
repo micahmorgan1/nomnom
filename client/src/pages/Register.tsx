@@ -1,6 +1,8 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { validatePassword } from '@nomnom/shared';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function Register() {
   const { register } = useAuth();
@@ -18,6 +20,12 @@ export default function Register() {
 
     if (password !== confirm) {
       setError('Passwords do not match');
+      return;
+    }
+
+    const validation = validatePassword(password);
+    if (!validation.valid) {
+      setError('Password requires: ' + validation.errors.join(', '));
       return;
     }
 
@@ -50,15 +58,9 @@ export default function Register() {
             required
           />
           <div className="text-xs text-gray-400 -mt-2 ml-1">3-30 characters, letters/numbers/underscores</div>
-          <input
-            type="password"
-            placeholder="Password"
+          <PasswordInput
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400"
-            autoComplete="new-password"
-            required
-            minLength={6}
+            onChange={setPassword}
           />
           <input
             type="password"

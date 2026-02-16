@@ -3,12 +3,16 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import db from '../db.js';
 import { authenticate, generateToken, AuthRequest } from '../middleware/auth.js';
+import { validatePassword } from '@nomnom/shared';
 
 const router = Router();
 
 const registerSchema = z.object({
   username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
-  password: z.string().min(6),
+  password: z.string().refine(
+    (p) => validatePassword(p).valid,
+    (p) => ({ message: validatePassword(p).errors.join(', ') }),
+  ),
   inviteCode: z.string().optional(),
 });
 

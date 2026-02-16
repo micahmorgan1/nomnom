@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { PRESET_COLORS } from '@nomnom/shared';
@@ -71,6 +72,18 @@ export default function SettingsPage() {
           </p>
         </div>
       </section>
+
+      {/* Admin */}
+      {user?.username === 'micah' && (
+        <section className="mb-8">
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Admin</h3>
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <Link to="/admin" className="text-sm text-accent-500 font-medium hover:underline">
+              Manage Users
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Categories */}
       <section>
