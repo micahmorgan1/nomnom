@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { PRESET_COLORS } from '@nomnom/shared';
@@ -7,6 +7,7 @@ import type { Category } from '@nomnom/shared';
 
 export default function SettingsPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState<string>(PRESET_COLORS[0]);
@@ -61,7 +62,17 @@ export default function SettingsPage() {
 
   return (
     <div className="p-4">
-      <h2 className="text-lg font-semibold text-gray-800 mb-6">Settings</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-semibold text-gray-800">Settings</h2>
+        <button
+          onClick={() => navigate(-1)}
+          className="p-1 text-gray-400 hover:text-gray-600"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
       {/* Account */}
       <section className="mb-8">

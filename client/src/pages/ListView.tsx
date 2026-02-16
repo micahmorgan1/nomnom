@@ -74,11 +74,12 @@ export default function ListView() {
         {list.is_owner && (
           <button
             onClick={() => setShowShare(true)}
-            className="text-gray-400 hover:text-accent-500 transition-colors p-1"
+            className="flex items-center gap-1 text-gray-400 hover:text-accent-500 transition-colors p-1"
           >
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9A2.25 2.25 0 0016.5 8.25H15M12 2.25v12m0-12l3 3m-3-3l-3 3" />
             </svg>
+            <span className="text-sm font-medium">Share</span>
           </button>
         )}
       </div>
@@ -150,9 +151,11 @@ export default function ListView() {
         </button>
         <button
           onClick={() => setShowAdd(true)}
-          className="w-14 h-14 bg-accent-500 text-white rounded-full shadow-lg flex items-center justify-center text-2xl hover:bg-accent-600 active:scale-95 transition-all"
+          className="w-14 h-14 bg-accent-500 text-white rounded-full shadow-lg flex items-center justify-center active:bg-accent-600 active:scale-95 transition-all"
         >
-          +
+          <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+            <path strokeLinecap="round" d="M12 5v14M5 12h14" />
+          </svg>
         </button>
       </div>
 

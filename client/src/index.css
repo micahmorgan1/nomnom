@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent iOS PWA zoom/overflow */
+html, body {
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
 @layer components {
   .pill {
     @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium
