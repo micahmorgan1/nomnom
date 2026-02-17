@@ -2,18 +2,26 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { PRESET_COLORS } from '@nomnom/shared';
 import type { Category } from '@nomnom/shared';
+import PasswordInput from '@/components/PasswordInput';
 
 export default function SettingsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState<string>(PRESET_COLORS[0]);
   const [showNewCat, setShowNewCat] = useState(false);
   const [editingColorId, setEditingColorId] = useState<number | null>(null);
   const [stagedColor, setStagedColor] = useState<string | null>(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwError, setPwError] = useState('');
 
   function startEditing(cat: Category) {
     if (editingColorId === cat.id) {
@@ -39,6 +47,7 @@ export default function SettingsPage() {
       setCategories((prev) => [...prev, cat]);
       setNewCatName('');
       setShowNewCat(false);
+      showToast('Category created');
     } catch {
       // handled
     }
@@ -60,6 +69,24 @@ export default function SettingsPage() {
     setCategories((prev) => prev.filter((c) => c.id !== id));
   }
 
+  async function changePassword() {
+    setPwError('');
+    if (newPassword !== confirmPassword) {
+      setPwError('Passwords do not match');
+      return;
+    }
+    try {
+      await api.put('/auth/password', { currentPassword, newPassword });
+      setShowChangePassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      showToast('Password updated');
+    } catch (err) {
+      setPwError(err instanceof Error ? err.message : 'Failed to change password');
+    }
+  }
+
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-6">
@@ -77,10 +104,64 @@ export default function SettingsPage() {
       {/* Account */}
       <section className="mb-8">
         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Account</h3>
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 space-y-3">
           <p className="text-sm text-gray-600">
             Logged in as <span className="font-medium text-gray-800">{user?.username}</span>
           </p>
+          <button
+            onClick={() => setShowChangePassword(!showChangePassword)}
+            className="text-sm text-accent-500 font-medium"
+          >
+            {showChangePassword ? 'Cancel' : 'Change Password'}
+          </button>
+
+          {showChangePassword && (
+            <div className="space-y-3 pt-1">
+              <input
+                type="password"
+                placeholder="Current password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
+                autoComplete="current-password"
+              />
+              <PasswordInput
+                value={newPassword}
+                onChange={setNewPassword}
+                placeholder="New password"
+              />
+              <input
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
+                autoComplete="new-password"
+              />
+              {pwError && <p className="text-xs text-danger-400">{pwError}</p>}
+              <div className="flex gap-2">
+                <button
+                  onClick={changePassword}
+                  disabled={!currentPassword || !newPassword || !confirmPassword}
+                  className="px-4 py-2 bg-accent-500 text-white text-sm font-medium rounded-lg hover:bg-accent-600 disabled:opacity-50 transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => {
+                    setShowChangePassword(false);
+                    setCurrentPassword('');
+                    setNewPassword('');
+                    setConfirmPassword('');
+                    setPwError('');
+                  }}
+                  className="px-4 py-2 text-gray-500 text-sm font-medium rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

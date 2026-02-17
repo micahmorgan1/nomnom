@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { api } from '@/lib/api';
+import { useToast } from '@/context/ToastContext';
 import type { ListShare } from '@nomnom/shared';
 
 interface ShareModalProps {
@@ -9,6 +10,7 @@ interface ShareModalProps {
 }
 
 export default function ShareModal({ open, onClose, listId }: ShareModalProps) {
+  const { showToast } = useToast();
   const [shares, setShares] = useState<ListShare[]>([]);
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
@@ -35,6 +37,7 @@ export default function ShareModal({ open, onClose, listId }: ShareModalProps) {
       });
       setShares((prev) => [...prev, share]);
       setUsername('');
+      showToast(`Shared with ${share.username}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to share');
     } finally {
@@ -43,8 +46,10 @@ export default function ShareModal({ open, onClose, listId }: ShareModalProps) {
   }
 
   async function handleRevoke(userId: number) {
+    const share = shares.find((s) => s.user_id === userId);
     await api.delete(`/lists/${listId}/shares/${userId}`);
     setShares((prev) => prev.filter((s) => s.user_id !== userId));
+    if (share) showToast(`Removed ${share.username}`);
   }
 
   if (!open) return null;

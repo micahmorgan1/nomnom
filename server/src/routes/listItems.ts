@@ -60,6 +60,19 @@ router.post('/:listId/items', authenticate, async (req: AuthRequest, res: Respon
       return;
     }
 
+    if (typeof name === 'string' && name.length > 200) {
+      res.status(400).json({ error: 'Name must be 200 characters or less' });
+      return;
+    }
+    if (notes && typeof notes === 'string' && notes.length > 500) {
+      res.status(400).json({ error: 'Notes must be 500 characters or less' });
+      return;
+    }
+    if (quantity && typeof quantity === 'string' && quantity.length > 50) {
+      res.status(400).json({ error: 'Quantity must be 50 characters or less' });
+      return;
+    }
+
     // Find or create item in library (normalize to lowercase)
     const normalizedName = name.trim().toLowerCase();
     let item = await db('items')
@@ -240,6 +253,15 @@ router.patch('/:listId/items/:listItemId', authenticate, async (req: AuthRequest
     const existing = await db('list_items').where({ id: listItemId, list_id: listId }).first();
     if (!existing) {
       res.status(404).json({ error: 'List item not found' });
+      return;
+    }
+
+    if (req.body.notes && typeof req.body.notes === 'string' && req.body.notes.length > 500) {
+      res.status(400).json({ error: 'Notes must be 500 characters or less' });
+      return;
+    }
+    if (req.body.quantity && typeof req.body.quantity === 'string' && req.body.quantity.length > 50) {
+      res.status(400).json({ error: 'Quantity must be 50 characters or less' });
       return;
     }
 

@@ -7,6 +7,8 @@ import { validatePassword } from '@nomnom/shared';
 
 const router = Router();
 
+const DUMMY_HASH = bcrypt.hashSync('dummy', 10);
+
 const registerSchema = z.object({
   username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/),
   password: z.string().refine(
@@ -56,13 +58,8 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
   try {
     const body = loginSchema.parse(req.body);
     const user = await db('users').where({ username: body.username }).first();
-    if (!user) {
-      res.status(401).json({ error: 'Invalid credentials' });
-      return;
-    }
-
-    const valid = await bcrypt.compare(body.password, user.password_hash);
-    if (!valid) {
+    const valid = await bcrypt.compare(body.password, user?.password_hash || DUMMY_HASH);
+    if (!user || !valid) {
       res.status(401).json({ error: 'Invalid credentials' });
       return;
     }
@@ -78,6 +75,41 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
       return;
     }
     console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.put('/password', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ error: 'Current password and new password are required' });
+      return;
+    }
+
+    const user = await db('users').where({ id: req.user!.id }).first();
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!valid) {
+      res.status(401).json({ error: 'Current password is incorrect' });
+      return;
+    }
+
+    const validation = validatePassword(newPassword);
+    if (!validation.valid) {
+      res.status(400).json({ error: validation.errors.join(', ') });
+      return;
+    }
+
+    const password_hash = await bcrypt.hash(newPassword, 10);
+    await db('users').where({ id: req.user!.id }).update({ password_hash });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Change password error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

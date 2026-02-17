@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { validatePassword } from '@nomnom/shared';
 import PasswordInput from '@/components/PasswordInput';
 
@@ -12,11 +13,11 @@ interface User {
 
 export default function AdminPage() {
   const { user: currentUser } = useAuth();
+  const { showToast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [resetId, setResetId] = useState<number | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     api.get<User[]>('/admin/users').then(setUsers).catch(() => {});
@@ -27,8 +28,7 @@ export default function AdminPage() {
     try {
       await api.delete(`/admin/users/${id}`);
       setUsers((prev) => prev.filter((u) => u.id !== id));
-      setSuccess(`Deleted ${username}`);
-      setTimeout(() => setSuccess(''), 3000);
+      showToast(`Deleted ${username}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Delete failed');
     }
@@ -45,8 +45,7 @@ export default function AdminPage() {
       await api.post(`/admin/users/${id}/reset-password`, { password: newPassword });
       setResetId(null);
       setNewPassword('');
-      setSuccess('Password reset successfully');
-      setTimeout(() => setSuccess(''), 3000);
+      showToast('Password reset');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Reset failed');
     }
@@ -62,9 +61,6 @@ export default function AdminPage() {
 
       {error && (
         <div className="bg-danger-50 text-danger-500 text-sm p-3 rounded-lg mb-4">{error}</div>
-      )}
-      {success && (
-        <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg mb-4">{success}</div>
       )}
 
       <div className="space-y-2">

@@ -58,6 +58,10 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       res.status(400).json({ error: 'Name is required' });
       return;
     }
+    if (name.length > 100) {
+      res.status(400).json({ error: 'Name must be 100 characters or less' });
+      return;
+    }
 
     const [id] = await db('lists').insert({
       name: name.trim(),
@@ -161,6 +165,10 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
     const { name } = req.body;
     if (!name || typeof name !== 'string') {
       res.status(400).json({ error: 'Name is required' });
+      return;
+    }
+    if (name.length > 100) {
+      res.status(400).json({ error: 'Name must be 100 characters or less' });
       return;
     }
 

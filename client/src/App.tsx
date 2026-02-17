@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { SocketProvider } from '@/context/SocketContext';
+import { ToastProvider } from '@/context/ToastContext';
 import Layout from '@/components/Layout';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -45,16 +46,18 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <SocketProvider>
-          <Routes>
-            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-            <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-            <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-              <Route index element={<ListsPage />} />
-              <Route path="lists/:id" element={<ListView />} />
-              <Route path="settings" element={<SettingsPage />} />
-              <Route path="admin" element={<AdminPage />} />
-            </Route>
-          </Routes>
+          <ToastProvider>
+            <Routes>
+              <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+              <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+              <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
+                <Route index element={<ListsPage />} />
+                <Route path="lists/:id" element={<ListView />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="admin" element={<AdminPage />} />
+              </Route>
+            </Routes>
+          </ToastProvider>
         </SocketProvider>
       </AuthProvider>
     </BrowserRouter>

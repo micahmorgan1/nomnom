@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLists } from '@/hooks/useLists';
+import { useToast } from '@/context/ToastContext';
 
 export default function ListsPage() {
   const { lists, loading, createList, deleteList } = useLists();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [newName, setNewName] = useState('');
   const [creating, setCreating] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
@@ -16,6 +18,7 @@ export default function ListsPage() {
       const list = await createList(newName.trim());
       setNewName('');
       setShowCreate(false);
+      showToast('List created');
       navigate(`/lists/${list.id}`);
     } catch {
       // handled
@@ -95,7 +98,10 @@ export default function ListsPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (confirm(`Delete "${list.name}"?`)) deleteList(list.id);
+                      if (confirm(`Delete "${list.name}"?`)) {
+                        deleteList(list.id);
+                        showToast('List deleted');
+                      }
                     }}
                     className="text-gray-300 hover:text-danger-400 transition-colors p-1"
                   >

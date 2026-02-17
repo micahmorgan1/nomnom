@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useList } from '@/hooks/useList';
+import { useToast } from '@/context/ToastContext';
 import Pill from '@/components/Pill';
 import AddItemModal from '@/components/AddItemModal';
 import EditItemModal from '@/components/EditItemModal';
@@ -23,10 +24,22 @@ export default function ListView() {
   const listId = Number(id);
   const navigate = useNavigate();
   const { list, loading, error, addItem, addItemsFromLibrary, checkItem, updateItem, removeItem, clearChecked } = useList(listId);
+  const { showToast } = useToast();
   const [showAdd, setShowAdd] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showPantry, setShowPantry] = useState(false);
   const [editingItem, setEditingItem] = useState<ListItemWithDetails | null>(null);
+
+  const handleAddItem = useCallback(async (data: Parameters<typeof addItem>[0]) => {
+    const item = await addItem(data);
+    showToast(`Added ${data.name}`);
+    return item;
+  }, [addItem, showToast]);
+
+  const handleRemoveItem = useCallback(async (listItemId: number) => {
+    await removeItem(listItemId);
+    showToast('Item removed');
+  }, [removeItem, showToast]);
 
   const { activeItems, inactiveItems, hasInactive, currentItemIds } = useMemo(() => {
     if (!list) return { activeItems: [], inactiveItems: [], hasInactive: false, currentItemIds: new Set<number>() };
@@ -100,7 +113,7 @@ export default function ListView() {
                 item={item}
                 variant="active"
                 onCheck={() => checkItem(item.id, !item.is_checked)}
-                onRemove={() => removeItem(item.id)}
+                onRemove={() => handleRemoveItem(item.id)}
                 onEdit={() => setEditingItem(item)}
               />
             ))}
@@ -122,7 +135,7 @@ export default function ListView() {
                     item={item}
                     variant="inactive"
                     onCheck={() => checkItem(item.id, !item.is_checked)}
-                    onRemove={() => removeItem(item.id)}
+                    onRemove={() => handleRemoveItem(item.id)}
                   />
                 ))}
               </div>
@@ -162,7 +175,7 @@ export default function ListView() {
       <AddItemModal
         open={showAdd}
         onClose={() => setShowAdd(false)}
-        onAdd={addItem}
+        onAdd={handleAddItem}
       />
 
       <EditItemModal

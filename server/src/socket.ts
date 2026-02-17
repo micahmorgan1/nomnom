@@ -1,5 +1,6 @@
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
+import db from './db.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 
@@ -18,7 +19,27 @@ export function setupSocket(io: Server) {
   });
 
   io.on('connection', (socket) => {
-    socket.on('list:join', (listId: number) => {
+    socket.on('list:join', async (listId: number) => {
+      const userId = socket.data.user?.id;
+      if (!userId) {
+        socket.emit('error', { message: 'Authentication required' });
+        return;
+      }
+
+      const list = await db('lists').where({ id: listId }).first();
+      if (!list) {
+        socket.emit('error', { message: 'List not found' });
+        return;
+      }
+
+      if (list.owner_id !== userId) {
+        const share = await db('list_shares').where({ list_id: listId, user_id: userId }).first();
+        if (!share) {
+          socket.emit('error', { message: 'Access denied' });
+          return;
+        }
+      }
+
       socket.join(`list:${listId}`);
     });
 

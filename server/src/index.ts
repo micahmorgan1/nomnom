@@ -11,6 +11,7 @@ import helmet from 'helmet';
 import { createServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
 
+import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.js';
 import listRoutes from './routes/lists.js';
 import listItemRoutes from './routes/listItems.js';
@@ -43,8 +44,17 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: ALLOWED_ORIGINS }));
 app.use(express.json());
 
+// Rate limiting on auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later' },
+});
+
 // API Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/lists', listRoutes);
 app.use('/api/lists', listItemRoutes);
 app.use('/api/items', itemRoutes);
