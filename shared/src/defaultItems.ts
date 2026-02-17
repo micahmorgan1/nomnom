@@ -135,9 +135,7 @@ export const DEFAULT_ITEMS: { name: string; category: string }[] = [
   { name: 'Hot Chocolate', category: 'Beverages' },
   { name: 'Iced Tea', category: 'Beverages' },
   { name: 'Kombucha', category: 'Beverages' },
-  { name: 'Beer', category: 'Beverages' },
-  { name: 'Wine', category: 'Beverages' },
-  { name: 'Creamer', category: 'Beverages' },
+{ name: 'Creamer', category: 'Beverages' },
   { name: 'Smoothie Mix', category: 'Beverages' },
 
   // ── Snacks (~20) ──

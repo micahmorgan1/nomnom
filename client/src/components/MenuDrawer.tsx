@@ -137,7 +137,7 @@ export default function MenuDrawer({ open, onClose, onAddToList, currentItemIds 
 
           {/* Content */}
           <div
-            className="overflow-y-auto overscroll-contain px-4 pb-6"
+            className="overflow-y-auto overscroll-contain px-4 pb-24"
             style={{ maxHeight: 'calc(80vh - 56px)', WebkitOverflowScrolling: 'touch' }}
           >
             {/* Create button */}

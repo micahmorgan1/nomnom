@@ -67,10 +67,11 @@ export default function ShareModal({ open, onClose, listId }: ShareModalProps) {
           <form onSubmit={handleShare} className="flex gap-2">
             <input
               type="text"
-              placeholder="Username..."
+              placeholder="Who to share with..."
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="flex-1 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
+              autoComplete="one-time-code"
             />
             <button
               type="submit"

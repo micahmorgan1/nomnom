@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useItemLibrary } from '@/hooks/useItemLibrary';
 import { hexToRgb, getTextColor, getColoredPillText } from '@/lib/colorUtils';
 
@@ -18,15 +18,20 @@ interface GroupedCategory {
 export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: PantryDrawerProps) {
   const { results, loading, loadAll } = useItemLibrary();
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [search, setSearch] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const [viewportOffset, setViewportOffset] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // Load library when opened
   useEffect(() => {
     if (open) {
       loadAll();
       setSelected(new Set());
+      setSearch('');
       // Trigger entrance animation
       setVisible(true);
       requestAnimationFrame(() => {
@@ -39,9 +44,33 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
     }
   }, [open, loadAll]);
 
+  // iOS keyboard: adjust height when visual viewport resizes
+  useEffect(() => {
+    if (!open) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    function onResize() {
+      setViewportHeight(vv!.height);
+      setViewportOffset(vv!.offsetTop);
+    }
+    vv.addEventListener('resize', onResize);
+    vv.addEventListener('scroll', onResize);
+    return () => {
+      vv.removeEventListener('resize', onResize);
+      vv.removeEventListener('scroll', onResize);
+    };
+  }, [open]);
+
   // Filter out items already on the list and group by category
   const grouped = useMemo(() => {
-    const available = results.filter((item) => !currentItemIds.has(item.id));
+    let available = results.filter((item) => !currentItemIds.has(item.id));
+
+    if (search.trim()) {
+      available = available.filter((item) =>
+        item.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
 
     const map = new Map<string, GroupedCategory>();
     for (const item of available) {
@@ -58,7 +87,7 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
       g.items.sort((a, b) => a.name.localeCompare(b.name));
     }
     return groups;
-  }, [results, currentItemIds]);
+  }, [results, currentItemIds, search]);
 
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
@@ -93,12 +122,24 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
     }
   }
 
+  function handleSearchFocus() {
+    setTimeout(() => {
+      scrollRef.current?.scrollTo(0, 0);
+    }, 150);
+  }
+
   if (!visible) return null;
 
   const totalAvailable = grouped.reduce((sum, g) => sum + g.items.length, 0);
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div
+      className="fixed left-0 right-0 z-50"
+      style={viewportHeight
+        ? { top: `${viewportOffset}px`, height: `${viewportHeight}px` }
+        : { top: 0, bottom: 0 }
+      }
+    >
       {/* Backdrop */}
       <div
         className={`absolute inset-0 bg-black/30 transition-opacity duration-300 ${animating ? 'opacity-100' : 'opacity-0'}`}
@@ -107,10 +148,10 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
 
       {/* Drawer */}
       <div
-        className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl transition-transform duration-300 ease-out ${
+        className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl transition-transform duration-300 ease-out flex flex-col ${
           animating ? 'translate-y-0' : 'translate-y-full'
         }`}
-        style={{ maxHeight: '80vh' }}
+        style={{ maxHeight: '80%' }}
       >
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between rounded-t-2xl z-10">
@@ -118,10 +159,32 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
         </div>
 
+        {/* Search */}
+        <div className="px-4 pt-3 pb-1 relative">
+          <input
+            type="text"
+            placeholder="Search items..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onFocus={handleSearchFocus}
+            className="w-full px-4 py-2 pr-8 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
+            autoComplete="one-time-code"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-gray-300 text-white text-xs"
+            >
+              &times;
+            </button>
+          )}
+        </div>
+
         {/* Content */}
         <div
-          className="overflow-y-auto overscroll-contain px-4 pb-24"
-          style={{ maxHeight: 'calc(80vh - 56px)', WebkitOverflowScrolling: 'touch' }}
+          ref={scrollRef}
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pb-24"
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {loading ? (
             <div className="text-center text-gray-400 py-12">Loading items...</div>
@@ -129,7 +192,9 @@ export default function PantryDrawer({ open, onClose, onAdd, currentItemIds }: P
             <div className="text-center text-gray-400 py-12">
               {results.length === 0
                 ? 'No items in your library yet'
-                : 'All items are already on this list'}
+                : search.trim()
+                  ? 'No items match your search'
+                  : 'All items are already on this list'}
             </div>
           ) : (
             <div className="py-3 space-y-4">

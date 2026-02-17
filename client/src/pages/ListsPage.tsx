@@ -51,12 +51,13 @@ export default function ListsPage() {
         <div className="mb-4 flex gap-2">
           <input
             type="text"
-            placeholder="List name..."
+            placeholder="New list..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             className="flex-1 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
             autoFocus
+            autoComplete="one-time-code"
           />
           <button
             onClick={handleCreate}

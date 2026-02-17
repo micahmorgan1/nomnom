@@ -215,6 +215,35 @@ export function useList(listId: number) {
     [listId]
   );
 
+  const renameItem = useCallback(
+    async (itemId: number, name: string) => {
+      await api.put(`/items/${itemId}`, { name });
+      // Update the item name in local state
+      setList((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          items: prev.items.map((i) =>
+            i.item_id === itemId ? { ...i, item: { ...i.item, name } } : i
+          ),
+        };
+      });
+    },
+    []
+  );
+
+  const deleteItemPermanently = useCallback(
+    async (itemId: number) => {
+      await api.delete(`/items/${itemId}`);
+      // Remove any list items referencing this item from local state
+      setList((prev) => {
+        if (!prev) return prev;
+        return { ...prev, items: prev.items.filter((i) => i.item_id !== itemId) };
+      });
+    },
+    []
+  );
+
   const clearChecked = useCallback(async () => {
     if (!list) return;
     const checked = list.items.filter((i) => i.is_checked);
@@ -225,5 +254,5 @@ export function useList(listId: number) {
     await Promise.all(checked.map((i) => api.delete(`/lists/${listId}/items/${i.id}`)));
   }, [list, listId]);
 
-  return { list, loading, error, addItem, addItemsFromLibrary, addItemsFromMenu, checkItem, updateItem, removeItem, clearChecked, refresh };
+  return { list, loading, error, addItem, addItemsFromLibrary, addItemsFromMenu, checkItem, updateItem, removeItem, renameItem, deleteItemPermanently, clearChecked, refresh };
 }

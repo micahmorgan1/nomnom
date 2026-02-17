@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useList } from '@/hooks/useList';
-import { useToast } from '@/context/ToastContext';
 import Pill from '@/components/Pill';
 import AddItemModal from '@/components/AddItemModal';
 import EditItemModal from '@/components/EditItemModal';
@@ -24,8 +23,7 @@ export default function ListView() {
   const { id } = useParams<{ id: string }>();
   const listId = Number(id);
   const navigate = useNavigate();
-  const { list, loading, error, addItem, addItemsFromLibrary, addItemsFromMenu, checkItem, updateItem, removeItem, clearChecked } = useList(listId);
-  const { showToast } = useToast();
+  const { list, loading, error, addItem, addItemsFromLibrary, addItemsFromMenu, checkItem, updateItem, removeItem, renameItem, deleteItemPermanently, clearChecked } = useList(listId);
   const [showAdd, setShowAdd] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showPantry, setShowPantry] = useState(false);
@@ -33,15 +31,12 @@ export default function ListView() {
   const [editingItem, setEditingItem] = useState<ListItemWithDetails | null>(null);
 
   const handleAddItem = useCallback(async (data: Parameters<typeof addItem>[0]) => {
-    const item = await addItem(data);
-    showToast(`Added ${data.name}`);
-    return item;
-  }, [addItem, showToast]);
+    return await addItem(data);
+  }, [addItem]);
 
   const handleRemoveItem = useCallback(async (listItemId: number) => {
     await removeItem(listItemId);
-    showToast('Item removed');
-  }, [removeItem, showToast]);
+  }, [removeItem]);
 
   const { activeItems, inactiveItems, hasInactive, currentItemIds } = useMemo(() => {
     if (!list) return { activeItems: [], inactiveItems: [], hasInactive: false, currentItemIds: new Set<number>() };
@@ -194,6 +189,8 @@ export default function ListView() {
         item={editingItem}
         onClose={() => setEditingItem(null)}
         onSave={updateItem}
+        onRename={renameItem}
+        onDeletePermanently={deleteItemPermanently}
       />
 
       <ShareModal

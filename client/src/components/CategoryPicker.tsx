@@ -80,11 +80,12 @@ export default function CategoryPicker({ selected, onSelect }: CategoryPickerPro
         <div className="mt-3 p-3 border border-gray-200 rounded-lg space-y-3">
           <input
             type="text"
-            placeholder="Category name..."
+            placeholder="New category..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
             autoFocus
+            autoComplete="one-time-code"
           />
           <div className="flex flex-wrap gap-1.5">
             {PRESET_COLORS.map((c) => (

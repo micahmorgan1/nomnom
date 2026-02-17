@@ -10,7 +10,7 @@ export default function Layout() {
     location.pathname === path ? 'text-accent-500' : 'text-gray-400';
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-[100dvh] bg-gray-50 flex flex-col overflow-hidden">
       {/* Top bar */}
       <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between safe-top">
         <button onClick={() => navigate('/')} className="text-xl font-bold text-accent-500">
@@ -28,7 +28,7 @@ export default function Layout() {
       </header>
 
       {/* Content */}
-      <main className="flex-1 overflow-y-auto pb-20">
+      <main className="flex-1 overflow-y-auto overscroll-contain pb-20">
         <Outlet />
       </main>
 

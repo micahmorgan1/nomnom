@@ -74,11 +74,12 @@ export default function AddItemModal({ open, onClose, onAdd }: AddItemModalProps
           {/* Search / Name input */}
           <input
             type="text"
-            placeholder="Item name..."
+            placeholder="Item to add..."
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400"
             autoFocus
+            autoComplete="one-time-code"
           />
 
           {/* Library suggestions */}
@@ -116,6 +117,7 @@ export default function AddItemModal({ open, onClose, onAdd }: AddItemModalProps
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
+                autoComplete="one-time-code"
               />
             </div>
             <div className="flex-1">
@@ -126,6 +128,7 @@ export default function AddItemModal({ open, onClose, onAdd }: AddItemModalProps
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Optional..."
                 className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-accent-400 text-sm"
+                autoComplete="one-time-code"
               />
             </div>
           </div>

@@ -111,6 +111,8 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       return;
     }
 
+    // Clean up list_items referencing this item before deleting
+    await db('list_items').where({ item_id: itemId }).del();
     await db('items').where({ id: itemId }).del();
     res.json({ success: true });
   } catch (err) {

@@ -66,7 +66,7 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
             e.stopPropagation();
             onRemove();
           }}
-          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-danger-400 text-white text-xs leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute -top-1.5 -right-1.5 w-6 h-6 min-w-[24px] min-h-[24px] rounded-full bg-danger-400 text-white text-sm leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity"
         >
           &times;
         </button>
@@ -96,7 +96,7 @@ export default function Pill({ item, variant = 'active', onCheck, onRemove, onEd
         <span className="ml-1.5 text-xs opacity-70 font-normal">&times;{item.quantity}</span>
       )}
       {item.notes && (
-        <span className="ml-1.5 text-xs opacity-50 font-normal">({item.notes})</span>
+        <span className="ml-1.5 text-xs opacity-70 font-normal italic">({item.notes})</span>
       )}
     </button>
   );
