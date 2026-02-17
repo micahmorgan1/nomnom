@@ -244,6 +244,123 @@ router.post('/:listId/items/batch', authenticate, async (req: AuthRequest, res: 
   }
 });
 
+// POST /:listId/menus/:menuId/add — add all items from a menu to this list
+router.post('/:listId/menus/:menuId/add', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const listId = Number(req.params.listId);
+    const menuId = Number(req.params.menuId);
+    await assertListAccess(req.user!.id, listId, true);
+
+    const userId = req.user!.id;
+
+    // Verify menu exists and belongs to user
+    const menu = await db('menus').where({ id: menuId, created_by: userId }).first();
+    if (!menu) {
+      res.status(404).json({ error: 'Menu not found' });
+      return;
+    }
+
+    const { exclude_item_ids = [] } = req.body || {};
+
+    // Get menu items
+    const menuItems = await db('menu_items')
+      .join('items', 'menu_items.item_id', 'items.id')
+      .where('menu_items.menu_id', menuId)
+      .select('items.*');
+
+    const excludeSet = new Set(exclude_item_ids);
+    const itemsToAdd = menuItems.filter((i: any) => !excludeSet.has(i.id));
+
+    const added: number[] = [];
+
+    await db.transaction(async (trx) => {
+      let maxOrder = await trx('list_items')
+        .where({ list_id: listId, is_checked: false })
+        .max('sort_order as max')
+        .first();
+      let sortOrder = (maxOrder?.max ?? 0) + 1;
+
+      for (let item of itemsToAdd) {
+        // If system item (created_by = null), clone to user's library
+        if (item.created_by === null) {
+          const existing = await trx('items')
+            .whereRaw('lower(name) = ?', [item.name.toLowerCase()])
+            .where({ created_by: userId })
+            .first();
+          if (existing) {
+            item = existing;
+          } else {
+            const lowName = item.name.toLowerCase();
+            const [newId] = await trx('items').insert({
+              name: lowName,
+              category_id: item.category_id,
+              created_by: userId,
+            });
+            item = { id: newId, name: lowName, category_id: item.category_id, created_by: userId };
+          }
+        }
+
+        // Check if already on list
+        const onList = await trx('list_items')
+          .where({ list_id: listId, item_id: item.id })
+          .first();
+
+        if (onList) {
+          if (onList.is_checked) {
+            // Re-activate with menu name as notes
+            await trx('list_items').where({ id: onList.id }).update({
+              is_checked: false,
+              checked_at: null,
+              quantity: '1',
+              notes: menu.name,
+            });
+            added.push(onList.id);
+          } else {
+            // Active — append menu name to existing notes
+            let newNotes = onList.notes
+              ? `${onList.notes}, ${menu.name}`
+              : menu.name;
+            if (newNotes.length > 500) {
+              newNotes = newNotes.slice(0, 500);
+            }
+            await trx('list_items').where({ id: onList.id }).update({
+              notes: newNotes,
+            });
+            added.push(onList.id);
+          }
+          continue;
+        }
+
+        const [listItemId] = await trx('list_items').insert({
+          list_id: listId,
+          item_id: item.id,
+          quantity: '1',
+          notes: menu.name,
+          sort_order: sortOrder++,
+        });
+        added.push(listItemId);
+      }
+    });
+
+    // Enrich all added/updated items
+    const enriched = (
+      await Promise.all(added.map((id) => enrichListItem(id)))
+    ).filter(Boolean);
+
+    // Emit socket event
+    const io = req.app.get('io');
+    if (io && enriched.length > 0) {
+      io.to(`list:${listId}`).emit('list:items-added', { listId, listItems: enriched });
+    }
+
+    res.status(201).json(enriched);
+  } catch (err) {
+    if (handleAccessError(err, res)) return;
+    console.error('Add menu to list error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.patch('/:listId/items/:listItemId', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const listId = Number(req.params.listId);

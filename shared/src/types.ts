@@ -96,6 +96,48 @@ export interface UpdateListItemRequest {
   category_id?: number;
 }
 
+// ---------- Menus (Recipes) ----------
+export interface Menu {
+  id: number;
+  name: string;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MenuItem {
+  id: number;
+  menu_id: number;
+  item_id: number;
+}
+
+export interface MenuItemWithDetails extends MenuItem {
+  item: Item;
+  category: Category;
+}
+
+export interface MenuWithItems extends Menu {
+  items: MenuItemWithDetails[];
+}
+
+export interface MenuSummary extends Menu {
+  item_count: number;
+}
+
+export interface CreateMenuRequest {
+  name: string;
+  item_ids: number[];
+}
+
+export interface UpdateMenuRequest {
+  name?: string;
+  item_ids?: number[];
+}
+
+export interface AddMenuToListRequest {
+  exclude_item_ids?: number[];
+}
+
 // ---------- Socket Events ----------
 export interface ServerToClientEvents {
   'list:item-added': (data: { listId: number; listItem: ListItemWithDetails }) => void;

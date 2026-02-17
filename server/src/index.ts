@@ -19,6 +19,7 @@ import itemRoutes from './routes/items.js';
 import categoryRoutes from './routes/categories.js';
 import shareRoutes from './routes/shares.js';
 import adminRoutes from './routes/admin.js';
+import menuRoutes from './routes/menus.js';
 import { setupSocket } from './socket.js';
 import db from './db.js';
 import { DEFAULT_CATEGORIES, DEFAULT_ITEMS } from '@nomnom/shared';
@@ -61,6 +62,7 @@ app.use('/api/items', itemRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/lists', shareRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/menus', menuRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

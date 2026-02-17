@@ -45,9 +45,32 @@ Items render as **inline pill elements that flow/wrap like words in a paragraph*
 - Generated from SVG via cairosvg; regenerate with: `python3 -c "import cairosvg; ..."`
 - Apple Touch Icon linked in `client/index.html`
 
+## Menus (Recipes)
+Users can save collections of grocery items as named menus (e.g., "Spring Roll Stir Fry") and quickly add them to any list. Items added from a menu get the menu name in their `notes` field.
+
+### Database
+- `menus` table — id, name, created_by (FK users, CASCADE), timestamps
+- `menu_items` table — id, menu_id (FK menus, CASCADE), item_id (FK items, CASCADE), UNIQUE(menu_id, item_id)
+
+### API Routes
+- `GET/POST /api/menus` — list/create menus
+- `GET/PUT/DELETE /api/menus/:id` — get/update/delete menu
+- `POST /api/lists/:listId/menus/:menuId/add` — add menu items to a list (in `listItems.ts`)
+  - Handles dedup: new items inserted with `notes = menu.name`, checked items re-activated, active items get menu name appended to notes
+  - Accepts `{ exclude_item_ids?: number[] }` to skip specific items
+  - Emits `list:items-added` socket event
+
+### Client Components
+- `useMenus` hook — CRUD operations for menus
+- `useList.addItemsFromMenu(menuId, excludeItemIds)` — calls the add-to-list endpoint
+- `MenuDrawer` — bottom-sheet listing menus, expandable to show ingredient pills with exclude toggles
+- `CreateMenuModal` — create/edit modal with name input and item selection from library
+- Menu button in ListView bottom bar (left of Pantry)
+
 ## Database Migrations
 - `server/migrations/001_initial.ts` — all tables
 - `server/migrations/002_unique_list_items.ts` — unique constraint on (list_id, item_id)
+- `server/migrations/005_menus.ts` — menus + menu_items tables
 - Run: `npm run migrate -w @nomnom/server`
 
 ## Implementation Plan

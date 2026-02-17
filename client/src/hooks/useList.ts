@@ -195,6 +195,26 @@ export function useList(listId: number) {
     [listId]
   );
 
+  const addItemsFromMenu = useCallback(
+    async (menuId: number, excludeItemIds: number[]) => {
+      const items = await api.post<ListItemWithDetails[]>(`/lists/${listId}/menus/${menuId}/add`, {
+        exclude_item_ids: excludeItemIds,
+      });
+      setList((prev) => {
+        if (!prev) return prev;
+        const existingIds = new Set(prev.items.map((i) => i.id));
+        const newItems = items.filter((li) => !existingIds.has(li.id));
+        const updatedItems = prev.items.map((i) => {
+          const updated = items.find((li) => li.id === i.id);
+          return updated || i;
+        });
+        return { ...prev, items: [...updatedItems, ...newItems] };
+      });
+      return items;
+    },
+    [listId]
+  );
+
   const clearChecked = useCallback(async () => {
     if (!list) return;
     const checked = list.items.filter((i) => i.is_checked);
@@ -205,5 +225,5 @@ export function useList(listId: number) {
     await Promise.all(checked.map((i) => api.delete(`/lists/${listId}/items/${i.id}`)));
   }, [list, listId]);
 
-  return { list, loading, error, addItem, addItemsFromLibrary, checkItem, updateItem, removeItem, clearChecked, refresh };
+  return { list, loading, error, addItem, addItemsFromLibrary, addItemsFromMenu, checkItem, updateItem, removeItem, clearChecked, refresh };
 }
