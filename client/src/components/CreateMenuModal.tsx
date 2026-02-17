@@ -136,7 +136,7 @@ export default function CreateMenuModal({ open, onClose, onSave, editingMenu }: 
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="px-4 pt-4 space-y-3">
+          <div className="px-4 pt-4 pb-2 space-y-3 flex-shrink-0">
             <input
               type="text"
               placeholder="Menu title (e.g. Spring Roll Stir Fry)"
